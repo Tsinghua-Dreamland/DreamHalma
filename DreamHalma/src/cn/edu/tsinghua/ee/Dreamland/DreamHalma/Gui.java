@@ -1,12 +1,25 @@
-package cn.edu.tsinghua.ee.Dreamland.DreamHalma.gui;
+package cn.edu.tsinghua.ee.Dreamland.DreamHalma;
 
 import java.awt.Frame;
+
 import cn.edu.tsinghua.ee.Dreamland.DreamHalma.model.State;
 import cn.edu.tsinghua.ee.Dreamland.DreamHalma.model.Action;
 import cn.edu.tsinghua.ee.Dreamland.DreamHalma.utils.Configure;
 
 //gui of the whole game, which class chess as the main backend
-public class MyFrame extends Frame {
+
+public class Gui implements Runnable {
+	public void run(){
+		try {
+			MyFrame frame = new MyFrame();
+		} catch (Exception e){
+			System.out.println("Gui has failed to deal with an exception");
+			System.out.println("Reason: " + e);			
+		}
+	} 
+}
+
+class MyFrame extends Frame {
 	
 	private State state;
 	private Configure configure;
