@@ -6,7 +6,6 @@ import java.io.Serializable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import cn.edu.tsinghua.ee.Dreamland.DreamHalma.Backend;
 import cn.edu.tsinghua.ee.Dreamland.DreamHalma.utils.Configure;
 import cn.edu.tsinghua.ee.Dreamland.DreamHalma.model.Chess;
 import cn.edu.tsinghua.ee.Dreamland.DreamHalma.utils.DreamHalmaException;
@@ -23,6 +22,10 @@ public class State implements Serializable {
 	public State() throws Exception{
 		configure = new Configure();
 		configure.setConfigure();
+	}
+	
+	public HashSet<Chess> getChesses(){
+		return this.getChesses();
 	}
 	
 	//initiate points mainly, using the configuration
@@ -52,7 +55,7 @@ public class State implements Serializable {
 	public String printChess(){
 		String s = "";
 		for (Chess i: chesses){
-			s = s + i.printChess();
+			s = s + i.printChess()+"   ";
 		}
 		return s;
 	}

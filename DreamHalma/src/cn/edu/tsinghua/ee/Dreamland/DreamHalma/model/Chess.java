@@ -14,6 +14,18 @@ public class Chess implements Serializable{
 		this.owner = owner;
 	}
 	
+	public int getVert(){
+		return this.vert;
+	}
+	
+	public int getHoriz(){
+		return this.horiz;
+	}
+	
+	public int getOwner(){
+		return this.owner;
+	}
+	
 	//for test purpose, clean this up for release
 	public String printChess(){
 		return "vert:"+this.vert+"  horiz:"+this.horiz+"  owner:"+this.owner;

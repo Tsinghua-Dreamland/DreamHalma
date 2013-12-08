@@ -12,6 +12,7 @@ import cn.edu.tsinghua.ee.Dreamland.DreamHalma.model.State;
 import cn.edu.tsinghua.ee.Dreamland.DreamHalma.model.Message;
 import cn.edu.tsinghua.ee.Dreamland.DreamHalma.utils.Configure;
 
+//Backend thread to act as a server
 public class Backend implements Runnable{
 	
 	private State state;
@@ -43,6 +44,7 @@ public class Backend implements Runnable{
 				LOG.error("failed to initiate data in backend: "+e.getStackTrace());
 				System.exit(1);
 			}
+			LOG.info("Backend Initiated");
 		}
 		else {
 			LOG.error("failed to find if its client or server");
@@ -50,6 +52,7 @@ public class Backend implements Runnable{
 		}
 	}
 	
+	//a thread to receive and send out heartbeat information
 	private class HeartBeat implements Runnable{
 		public void run(){
 			LOG.info("Heartbeat Server Initiating");
