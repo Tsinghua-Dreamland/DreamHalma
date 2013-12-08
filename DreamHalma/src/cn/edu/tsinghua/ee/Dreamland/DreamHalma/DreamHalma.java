@@ -14,7 +14,8 @@ public class DreamHalma {
 			backend.run();
 		}
 		catch(Exception e){
-			System.out.println("Sorry to exit, Error running DreamHalma: " + e);
+			System.out.println("Sorry to exit, Error running DreamHalma: " );
+			e.printStackTrace();
 			System.exit(1);
 		}
 		System.out.println("Thanks to play this game, it is designed by Team Dreamland, Tsinghua University");

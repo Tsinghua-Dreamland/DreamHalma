@@ -14,7 +14,8 @@ public class Gui implements Runnable {
 			MyFrame frame = new MyFrame();
 		} catch (Exception e){
 			System.out.println("Gui has failed to deal with an exception");
-			System.out.println("Reason: " + e);			
+			System.out.println("Reason: " + e);	
+			e.printStackTrace();
 		}
 	} 
 }

@@ -11,6 +11,7 @@ public class State {
 	private HashSet<Chess> chesses = new HashSet<Chess>();
 	
 	public State() throws Exception{
+		Configure configure = new Configure();
 		configure.setConfigure();
 	}
 	

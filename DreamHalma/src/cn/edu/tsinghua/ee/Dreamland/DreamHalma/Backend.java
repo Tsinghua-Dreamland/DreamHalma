@@ -21,11 +21,14 @@ public class Backend implements Runnable{
 	}
 	
 	public void run(){
-		if(configure.get("side_of_game")=="client"){
+		if(configure.getProperty("side_of_game")=="client"){
 			return;
-		} else if(configure.get("side_of_game")=="server"){
-			//do a lot of things here
-		} else {
+		} 
+		else if((configure.getProperty("side_of_game")).equals("server")||
+				(configure.getProperty("side_of_game")).equals("client_and_server")){
+			//do a lot here
+		}
+		else {
 			System.out.println("failed to find if its client or server");
 			System.exit(1);
 		}
