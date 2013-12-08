@@ -14,10 +14,11 @@ import cn.edu.tsinghua.ee.Dreamland.DreamHalma.utils.DreamHalmaException;
 public class State implements Serializable {
 	
 	private static final Log LOG = LogFactory.getLog(State.class);
-	
 	private Configure configure;
-	private HashSet<Chess> chesses = new HashSet<Chess>();
-	private int totalPlayers;
+	
+	private HashSet<Chess> chesses = new HashSet<Chess>(); // a HashSet of all the chess pieces
+	private boolean gameOn; //a marker to make sure whether the game is still on going, for the clean up need
+	private int totalPlayers; // keep record of the total players in the game
 	
 	public State() throws Exception{
 		configure = new Configure();
@@ -28,6 +29,10 @@ public class State implements Serializable {
 		return this.getChesses();
 	}
 	
+	public boolean getGameOn(){
+		return this.gameOn;
+	}
+	
 	//initiate points mainly, using the configuration
 	public void init() throws Exception{
 		LOG.info("state initiating");
@@ -36,6 +41,7 @@ public class State implements Serializable {
 			throw new DreamHalmaException("player number no correct, we only allow 2,3 or 6 players");
 		} else {
 			this.initiateChess();
+			gameOn = true;
 		}
 		LOG.info("state initiated");
 	}
