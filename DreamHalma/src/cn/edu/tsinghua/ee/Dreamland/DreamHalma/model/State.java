@@ -16,9 +16,12 @@ public class State implements Serializable {
 	private static final Log LOG = LogFactory.getLog(State.class);
 	private Configure configure;
 	
-	private HashSet<Chess> chesses = new HashSet<Chess>(); // a HashSet of all the chess pieces
-	private boolean gameOn; //a marker to make sure whether the game is still on going, for the clean up need
-	private int totalPlayers; // keep record of the total players in the game
+	// a HashSet of all the chess pieces
+	private HashSet<Chess> chesses = new HashSet<Chess>(); 
+	//a marker to make sure whether the game is still on going, for the clean up need
+	private boolean gameOn; 
+	// keep record of the total players in the game
+	private int totalPlayers; 
 	
 	public State() throws Exception{
 		configure = new Configure();
@@ -37,9 +40,11 @@ public class State implements Serializable {
 	public void init() throws Exception{
 		LOG.info("state initiating");
 		totalPlayers = Integer.parseInt(configure.getProperty("total_players"));
-		if ((totalPlayers!=2)&&(totalPlayers!=3)&&(totalPlayers!=6)){
+		//according to the rule, only 2,3,4,or 6 players are accepted
+		if ((totalPlayers!=2)&&(totalPlayers!=3)&&(totalPlayers!=4)&&(totalPlayers!=6)){
 			throw new DreamHalmaException("player number no correct, we only allow 2,3 or 6 players");
 		} else {
+			//initiate all the chess pieces according to how many players
 			this.initiateChess();
 			gameOn = true;
 		}

@@ -13,11 +13,13 @@ public class DreamHalma {
 	
 	public static void main(String[] args){
 		try{
-			Gui gui = new Gui();
+			//start the backend thread
 			Backend backend = new Backend();
-			Thread guiThread = new Thread(gui);
 			Thread backendThread = new Thread(backend);
 			backendThread.start();
+			//start the gui thread
+			Gui gui = new Gui();
+			Thread guiThread = new Thread(gui);
 			guiThread.start();
 		}
 		catch(Exception e){

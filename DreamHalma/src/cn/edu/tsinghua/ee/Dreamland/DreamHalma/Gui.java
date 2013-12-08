@@ -19,6 +19,7 @@ public class Gui implements Runnable {
 
 	public void run(){
 		try {
+			//wait until the backend is fully initiated
 			Thread.sleep(1000);
 			LOG.info("Gui Initiating");
 			MyFrame frame = new MyFrame();
@@ -38,7 +39,9 @@ public class Gui implements Runnable {
 			state = new State();
 			try{
 				configure.setConfigure();
+				//get a heart beat message the refresh the chess board the first time
 				state = this.getHeartBeatMessage().getState();
+				//this is a debug info, delete it for release
 				LOG.info("chess pieces: " + state.printChess());
 			} catch (Exception e){
 				LOG.error("failed to initiate data");
@@ -46,6 +49,9 @@ public class Gui implements Runnable {
 			}
 		}
 		
+		//the function to get heartbeat message
+		//will communicate with the heartbeat server thread in the backend
+		//and returns a class Message as updated information
 		private Message getHeartBeatMessage() throws Exception{
 			int serverPort = Integer.parseInt(configure.getProperty("backend_port_heartbeat"));
 			String serverAddress = configure.getProperty("backend_address");
