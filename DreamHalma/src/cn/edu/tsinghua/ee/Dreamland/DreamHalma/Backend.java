@@ -21,11 +21,11 @@ public class Backend implements Runnable{
 	}
 	
 	public void run(){
-		if(configure.getProperty("side_of_game")=="client"){
+		if(configure.getProperty("backend")=="client"){
 			return;
 		} 
-		else if((configure.getProperty("side_of_game")).equals("server")||
-				(configure.getProperty("side_of_game")).equals("client_and_server")){
+		else if((configure.getProperty("backend")).equals("server")||
+				(configure.getProperty("backend")).equals("client_and_server")){
 			//do a lot here
 		}
 		else {
