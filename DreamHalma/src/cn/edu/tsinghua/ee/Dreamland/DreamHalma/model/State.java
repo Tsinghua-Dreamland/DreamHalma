@@ -1,13 +1,14 @@
 package cn.edu.tsinghua.ee.Dreamland.DreamHalma.model;
 
 import java.util.HashSet;
+import java.io.Serializable;
 
 import cn.edu.tsinghua.ee.Dreamland.DreamHalma.utils.Configure;
 import cn.edu.tsinghua.ee.Dreamland.DreamHalma.model.Chess;
 import cn.edu.tsinghua.ee.Dreamland.DreamHalma.utils.DreamHalmaException;
 
 //class to show the states of the game.
-public class State {
+public class State implements Serializable {
 	private Configure configure;
 	private HashSet<Chess> chesses = new HashSet<Chess>();
 	private int totalPlayers;
@@ -22,7 +23,19 @@ public class State {
 		totalPlayers = Integer.parseInt(configure.getProperty("total_players"));
 		if ((totalPlayers!=2)&&(totalPlayers!=3)&&(totalPlayers!=6)){
 			throw new DreamHalmaException("player number no correct, we only allow 2,3 or 6 players");
+		} else {
+			this.initiateChess();
 		}
-		
+	}
+	
+	//function to initiate the chesses according to player number
+	private void initiateChess(){
+		for ( int player=1; player<totalPlayers; player=player+1){
+			for (int i=0;i<10;i++){
+				int vert=0;
+				int horiz=0;
+				chesses.add(new Chess(vert, horiz, player));
+			}
+		}
 	}
 }
