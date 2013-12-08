@@ -19,7 +19,6 @@ public class DreamHalma {
 			Thread backendThread = new Thread(backend);
 			backendThread.start();
 			guiThread.start();
-			
 		}
 		catch(Exception e){
 			LOG.error("Sorry to exit, Error running DreamHalma: " + e.getStackTrace());

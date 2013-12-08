@@ -8,7 +8,6 @@ import java.io.BufferedOutputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import cn.edu.tsinghua.ee.Dreamland.DreamHalma.DreamHalma;
 import cn.edu.tsinghua.ee.Dreamland.DreamHalma.model.State;
 import cn.edu.tsinghua.ee.Dreamland.DreamHalma.model.Message;
 import cn.edu.tsinghua.ee.Dreamland.DreamHalma.utils.Configure;
@@ -41,7 +40,7 @@ public class Backend implements Runnable{
 				Thread heartBeatThread = new Thread(heartBeat);
 				heartBeatThread.start();
 			} catch (Exception e){
-				LOG.error("failed to initiate data in backend");
+				LOG.error("failed to initiate data in backend: "+e.getStackTrace());
 				System.exit(1);
 			}
 		}

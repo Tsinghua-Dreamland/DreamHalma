@@ -23,9 +23,7 @@ public class Gui implements Runnable {
 			LOG.info("Gui Initiating");
 			MyFrame frame = new MyFrame();
 		} catch (Exception e){
-			System.out.println("Gui has failed to deal with an exception");
-			System.out.println("Reason: " + e);	
-			e.printStackTrace();
+			LOG.error("Gui has failed to deal with an exception: "+e.getStackTrace());
 			System.exit(1);
 		}
 	} 
@@ -43,7 +41,7 @@ public class Gui implements Runnable {
 				state = this.getHeartBeatMessage().getState();
 				LOG.info("chess pieces: " + state.printChess());
 			} catch (Exception e){
-				System.out.println("failed to initiate data");
+				LOG.error("failed to initiate data");
 				throw e;
 			}
 		}
@@ -58,7 +56,7 @@ public class Gui implements Runnable {
 				Message message = (Message)ois.readObject();
 				return message;
 			} catch(Exception e){
-				System.out.println("failed to connect with server");
+				LOG.error("failed to connect with server");
 				throw e;
 			}
 		}
