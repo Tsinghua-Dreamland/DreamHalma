@@ -5,12 +5,11 @@ import java.io.FileInputStream;
 
 //this is the class with functionality to get configurations from ".properties" file
 public class Configure extends Properties{
-	
+
 	//set up the configuration from reading the file
 	public void setConfigure() throws Exception{
 		FileInputStream fis = new FileInputStream("./etc/DreamHalma.properties");
 		this.load(fis);
 		fis.close();
 	}
-	
 }
