@@ -48,12 +48,96 @@ public class State implements Serializable {
 	
 	//function to initiate the chesses according to player number
 	private void initiateChess(){
-		for ( int player=1; player<totalPlayers; player=player+1){
-			for (int i=0;i<10;i++){
-				int vert=i;
-				int horiz=i;
-				chesses.add(new Chess(vert, horiz, player));
+		switch(this.totalPlayers){
+		case 2:{
+			int count=4;//the total layer of chesses is 4
+			//for player 1
+			int temp=-5;
+			int begin=1;int end=4;
+			while(count>0){
+				for(int i=begin;i<=end;i++)
+					chesses.add(new Chess(i, temp, 1));
+				temp=temp-1;begin++;count--;
 			}
+			//for player 2
+			count=4;temp=5;begin=0;end=3;
+			while(count>0){
+				for(int i=begin;i<=end;i++)
+					chesses.add(new Chess(i-4, temp, 2));
+				temp=temp+1;end--;count--;
+			}
+		}
+		case 3:{
+			int count=4;//the total layer of chesses is 4
+			//for player 1
+			int temp=-5;
+			int begin=1;int end=4;
+			while(count>0){
+				for(int i=begin;i<=end;i++)
+					chesses.add(new Chess(i, temp, 1));
+				temp=temp-1;begin++;count--;
+			}
+			//for player 2
+			count=4;temp=4;begin=0;end=3;
+			while(count>0){
+				for(int i=begin;i<=end;i++)
+					chesses.add(new Chess(i+1, temp, 2));
+				temp=temp-1;begin++;count--;
+			}
+			//for player 3
+			count=4;temp=4;begin=0;end=3;
+			while(count>0){
+				for(int i=begin;i<=end;i++)
+					chesses.add(new Chess(i-8, temp, 3));
+				temp=temp-1;begin++;count--;
+			}
+		}
+		case 6:{
+			int count=4;//the total layer of chesses is 4
+			//for player 1
+			int temp=-5;
+			int begin=1;int end=4;
+			while(count>0){
+				for(int i=begin;i<=end;i++)
+					chesses.add(new Chess(i, temp, 1));
+				temp=temp-1;begin++;count--;
+			}
+			//for player 2
+			count=4;temp=4;begin=0;end=3;
+			while(count>0){
+				for(int i=begin;i<=end;i++)
+					chesses.add(new Chess(i+1, temp, 2));
+				temp=temp-1;begin++;count--;
+			}
+			//for player 3
+			count=4;temp=4;begin=0;end=3;
+			while(count>0){
+				for(int i=begin;i<=end;i++)
+					chesses.add(new Chess(i-8, temp, 3));
+				temp=temp-1;begin++;count--;
+			}
+			//for player 4
+			count=4;temp=5;begin=0;end=3;
+			while(count>0){
+				for(int i=begin;i<=end;i++)
+					chesses.add(new Chess(i-4, temp, 4));
+				temp=temp+1;end--;count--;
+			}
+			//for player 5
+			count=4;temp=-4;begin=0;end=3;
+			while(count>0){
+				for(int i=begin;i<=end;i++)
+					chesses.add(new Chess(i-4, temp, 5));
+				temp=temp+1;end--;count--;
+			}
+			//for player 6
+			count=4;temp=-4;begin=0;end=3;
+			while(count>0){
+				for(int i=begin;i<=end;i++)
+					chesses.add(new Chess(i+5, temp, 5));
+				temp=temp+1;end--;count--;
+			}
+		}
 		}
 	}
 	
