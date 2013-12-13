@@ -91,7 +91,6 @@ public class Gui implements Runnable {
 			final Image imageBg = Toolkit.getDefaultToolkit()
 					.getImage("images/background.jpg");
 			g.drawImage(imageBg,0,25, this);
-			LOG.info("background set");
 			  
 			for(Chess chess: state.getChesses()){
 				int x = chess.getHoriz();
@@ -99,7 +98,7 @@ public class Gui implements Runnable {
 				int xx = 286 + x*48 + y*24;
 				int yy = 370 + y*43;
 				//System.out.println(x+","+y);
-				LOG.info("Chess marked");
+				//LOG.info("Chess marked");
 				final Image img1 = Toolkit.getDefaultToolkit()
 						.getImage("images/marbles/yellow.png");
 				g.drawImage(img1,xx,yy, this); 
