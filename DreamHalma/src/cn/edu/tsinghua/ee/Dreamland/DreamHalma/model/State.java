@@ -29,7 +29,7 @@ public class State implements Serializable {
 	}
 	
 	public HashSet<Chess> getChesses(){
-		return this.getChesses();
+		return this.chesses;
 	}
 	
 	public boolean getGameOn(){
