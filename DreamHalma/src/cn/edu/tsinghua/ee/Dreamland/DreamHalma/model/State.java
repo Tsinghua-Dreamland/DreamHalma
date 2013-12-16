@@ -1,6 +1,7 @@
 package cn.edu.tsinghua.ee.Dreamland.DreamHalma.model;
 
 import java.util.HashSet;
+import java.util.regex.Pattern;
 import java.io.Serializable;
 
 import org.apache.commons.logging.Log;
@@ -22,6 +23,8 @@ public class State implements Serializable {
 	private boolean gameOn; 
 	// keep record of the total players in the game
 	private int totalPlayers; 
+	// the next player in the game
+	private int nextPlayer = 0;
 	
 	public State() throws Exception{
 		configure = new Configure();
@@ -34,6 +37,14 @@ public class State implements Serializable {
 	
 	public boolean getGameOn(){
 		return this.gameOn;
+	}
+	
+	public int getTotalPlayers(){
+		return this.totalPlayers;
+	}
+	
+	public int getNextPlayer(){
+		return this.nextPlayer;
 	}
 	
 	//initiate points mainly, using the configuration
@@ -54,96 +65,130 @@ public class State implements Serializable {
 	//function to initiate the chesses according to player number
 	private void initiateChess(){
 		switch(this.totalPlayers){
-		case 2:{
-			int count=4;//the total layer of chesses is 4
-			//for player 1
-			int temp=-5;
-			int begin=1;int end=4;
-			while(count>0){
-				for(int i=begin;i<=end;i++)
+			case 2:{
+				int count=4;//the total layer of chesses is 4
+				//for player 1
+				int temp=-5;
+				int begin=1;int end=4;
+				while(count>0){
+					for(int i=begin;i<=end;i++)
 					chesses.add(new Chess(i, temp, 1));
-				temp=temp-1;begin++;count--;
+					temp=temp-1;begin++;count--;
+				}
+				//for player 2
+				count=4;temp=5;begin=0;end=3;
+				while(count>0){
+					for(int i=begin;i<=end;i++)
+						chesses.add(new Chess(i-4, temp, 2));
+					temp=temp+1;end--;count--;
+				}
 			}
-			//for player 2
-			count=4;temp=5;begin=0;end=3;
-			while(count>0){
-				for(int i=begin;i<=end;i++)
-					chesses.add(new Chess(i-4, temp, 2));
-				temp=temp+1;end--;count--;
+			case 3:{
+				int count=4;//the total layer of chesses is 4
+				//for player 1
+				int temp=-5;
+				int begin=1;int end=4;
+				while(count>0){
+					for(int i=begin;i<=end;i++)
+						chesses.add(new Chess(i, temp, 1));
+					temp=temp-1;begin++;count--;
+				}
+				//for player 2
+				count=4;temp=4;begin=0;end=3;
+				while(count>0){
+					for(int i=begin;i<=end;i++)
+						chesses.add(new Chess(i+1, temp, 2));
+					temp=temp-1;begin++;count--;
+				}
+				//for player 3
+				count=4;temp=4;begin=0;end=3;
+				while(count>0){
+					for(int i=begin;i<=end;i++)
+						chesses.add(new Chess(i-8, temp, 3));
+					temp=temp-1;begin++;count--;
+				}
+			}
+			case 6:{
+				int count=4;//the total layer of chesses is 4
+				//for player 1
+				int temp=-5;
+				int begin=1;int end=4;
+				while(count>0){
+					for(int i=begin;i<=end;i++)
+						chesses.add(new Chess(i, temp, 1));
+					temp=temp-1;begin++;count--;
+				}
+				//for player 2
+				count=4;temp=4;begin=0;end=3;
+				while(count>0){
+					for(int i=begin;i<=end;i++)
+						chesses.add(new Chess(i+1, temp, 2));
+					temp=temp-1;begin++;count--;
+				}
+				//for player 3
+				count=4;temp=4;begin=0;end=3;
+				while(count>0){
+					for(int i=begin;i<=end;i++)
+						chesses.add(new Chess(i-8, temp, 3));
+					temp=temp-1;begin++;count--;
+				}
+				//for player 4
+				count=4;temp=5;begin=0;end=3;
+				while(count>0){
+					for(int i=begin;i<=end;i++)
+						chesses.add(new Chess(i-4, temp, 4));
+					temp=temp+1;end--;count--;
+				}
+				//for player 5
+				count=4;temp=-4;begin=0;end=3;
+				while(count>0){
+					for(int i=begin;i<=end;i++)
+						chesses.add(new Chess(i-4, temp, 5));
+					temp=temp+1;end--;count--;
+				}
+				//for player 6
+				count=4;temp=-4;begin=0;end=3;
+				while(count>0){
+					for(int i=begin;i<=end;i++)
+						chesses.add(new Chess(i+5, temp, 5));
+					temp=temp+1;end--;count--;
+				}
 			}
 		}
-		case 3:{
-			int count=4;//the total layer of chesses is 4
-			//for player 1
-			int temp=-5;
-			int begin=1;int end=4;
-			while(count>0){
-				for(int i=begin;i<=end;i++)
-					chesses.add(new Chess(i, temp, 1));
-				temp=temp-1;begin++;count--;
-			}
-			//for player 2
-			count=4;temp=4;begin=0;end=3;
-			while(count>0){
-				for(int i=begin;i<=end;i++)
-					chesses.add(new Chess(i+1, temp, 2));
-				temp=temp-1;begin++;count--;
-			}
-			//for player 3
-			count=4;temp=4;begin=0;end=3;
-			while(count>0){
-				for(int i=begin;i<=end;i++)
-					chesses.add(new Chess(i-8, temp, 3));
-				temp=temp-1;begin++;count--;
-			}
+	}
+	
+	//the function to move according to gui's command
+	public boolean move(String command){
+		//parse the start and end point of a move
+		String[] strs = Pattern.compile(",").split(command);
+		Chess start = new Chess(Integer.parseInt(strs[0]),Integer.parseInt(strs[1]),this.nextPlayer);
+		Chess end = new Chess(Integer.parseInt(strs[2]),Integer.parseInt(strs[3]),this.nextPlayer);
+		if (this.validMove(start, end)){
+			chesses.remove(start);
+			chesses.add(end);
+			this.toNextPlayer();
+			this.checkIsGameFinished();
+			return true;
 		}
-		case 6:{
-			int count=4;//the total layer of chesses is 4
-			//for player 1
-			int temp=-5;
-			int begin=1;int end=4;
-			while(count>0){
-				for(int i=begin;i<=end;i++)
-					chesses.add(new Chess(i, temp, 1));
-				temp=temp-1;begin++;count--;
-			}
-			//for player 2
-			count=4;temp=4;begin=0;end=3;
-			while(count>0){
-				for(int i=begin;i<=end;i++)
-					chesses.add(new Chess(i+1, temp, 2));
-				temp=temp-1;begin++;count--;
-			}
-			//for player 3
-			count=4;temp=4;begin=0;end=3;
-			while(count>0){
-				for(int i=begin;i<=end;i++)
-					chesses.add(new Chess(i-8, temp, 3));
-				temp=temp-1;begin++;count--;
-			}
-			//for player 4
-			count=4;temp=5;begin=0;end=3;
-			while(count>0){
-				for(int i=begin;i<=end;i++)
-					chesses.add(new Chess(i-4, temp, 4));
-				temp=temp+1;end--;count--;
-			}
-			//for player 5
-			count=4;temp=-4;begin=0;end=3;
-			while(count>0){
-				for(int i=begin;i<=end;i++)
-					chesses.add(new Chess(i-4, temp, 5));
-				temp=temp+1;end--;count--;
-			}
-			//for player 6
-			count=4;temp=-4;begin=0;end=3;
-			while(count>0){
-				for(int i=begin;i<=end;i++)
-					chesses.add(new Chess(i+5, temp, 5));
-				temp=temp+1;end--;count--;
-			}
+		else{
+			return false;
 		}
-		}
+	}
+	
+	//get the "int nextPlayer" to the next player
+	private void toNextPlayer(){
+		
+	}
+	
+	//check if the game is finished, set gameOn if necessary
+	private void checkIsGameFinished(){
+		this.gameOn = true;
+	}
+	
+	
+	//check whether a move is valid, this should not change chesses structure through
+	private boolean validMove(Chess start, Chess end){
+		return true;
 	}
 	
 	//for test purpose, clean this up for release
@@ -153,5 +198,16 @@ public class State implements Serializable {
 			s = s + i.printChess()+"   ";
 		}
 		return s;
+	}
+	
+	//for test purpose
+	public void test(){
+		try{
+			Thread.sleep(10000);
+			LOG.info("chesses clear");
+			this.chesses.clear();
+		}	catch(Exception e){
+			;
+		}
 	}
 }

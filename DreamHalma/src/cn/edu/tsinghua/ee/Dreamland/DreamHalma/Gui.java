@@ -17,6 +17,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.io.BufferedInputStream;
 import java.io.ObjectInputStream;
+import java.io.BufferedOutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 
 import javax.swing.JPanel;
 
@@ -42,7 +45,8 @@ public class Gui implements Runnable {
 			LOG.info("Gui Initiating");
 			new MyFrame("A New Game");
 		} catch (Exception e){
-			LOG.error("Gui has failed to deal with an exception: "+e.getStackTrace());
+			LOG.error("Gui has failed to deal with an exception: ");
+			e.printStackTrace();
 			System.exit(1);
 		}
 	} 
@@ -60,10 +64,11 @@ public class Gui implements Runnable {
 			points = new ArrayList<Point>();
 			try{
 				configure.setConfigure();
-				//get a heart beat message the refresh the chess board the first time
-				state = this.getHeartBeatMessage().getState();
+				//register the gui and refresh the chess board the first time
+				state = this.registerChess().getState();
 				//this is a debug info, delete it for release
 				LOG.info("chess pieces: " + state.printChess());
+				//initiate the chess board
 				Dimension dimension = new Dimension(602, 750);
 				final Point origin = new Point(0, 0);
 				final Rectangle rectangle = new Rectangle(origin, dimension);
@@ -80,6 +85,10 @@ public class Gui implements Runnable {
 						}
 					}
 				);
+				//to start the thread to renew information from server side
+				StatusUpdater statusUpdater = new StatusUpdater();
+				Thread statusUpdaterThread = new Thread(statusUpdater);
+				statusUpdaterThread.start();
 			} catch (Exception e){
 				LOG.error("failed to initiate data");
 				throw e;
@@ -104,6 +113,20 @@ public class Gui implements Runnable {
 				g.drawImage(img1,xx,yy, this); 
 			 }
 		}
+		
+		//added a double buffer to this Frame, which will eliminate the blinking while updating the frame
+		private Image iBuffer;
+		private Graphics gBuffer;
+		public void update(Graphics g){
+			if(iBuffer == null){
+				iBuffer = createImage(this.getSize().width, this.getSize().height);
+				gBuffer = iBuffer.getGraphics();
+			}
+			gBuffer.setColor(getBackground());
+			gBuffer.fillRect(0, 0, this.getSize().width, this.getSize().height);
+			paint(gBuffer);
+			g.drawImage(iBuffer, 0, 0, this);
+		}
 
 		public void addPoint(Point p)
 		{
@@ -114,21 +137,65 @@ public class Gui implements Runnable {
 		{		  
 		}
 		
-		//the function to get heartbeat message
-		//will communicate with the heartbeat server thread in the backend
-		//and returns a class Message as updated information
-		private Message getHeartBeatMessage() throws Exception{
-			int serverPort = Integer.parseInt(configure.getProperty("backend_port_heartbeat"));
+		//the function to register to the server as a client
+		//returns the initial state of the game
+		private Message registerChess() throws Exception{
+			LOG.info("registering the gui to server");
+			int serverPort = Integer.parseInt(configure.getProperty("backend_port_movement"));
 			String serverAddress = configure.getProperty("backend_address");
-			LOG.info("connecting backend with: "+serverAddress+":"+serverPort);
 			try{
 				Socket socket = new Socket(serverAddress, serverPort);
-				ObjectInputStream ois=new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
+				PrintWriter pw = new PrintWriter(new OutputStreamWriter(new BufferedOutputStream(socket.getOutputStream())));
+				//send out the local players at this gui
+				pw.println(configure.getProperty("local_players_detail"));
+				pw.flush();
+				pw.close();
+				socket.close();
+				socket = new Socket(serverAddress, serverPort);
+				ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
 				Message message = (Message)ois.readObject();
+				ois.close();
+				socket.close();
 				return message;
 			} catch(Exception e){
 				LOG.error("failed to connect with server");
 				throw e;
+			}
+		}
+		
+		//this is a class to update the panal from the server every other second
+		class StatusUpdater implements Runnable{
+			public void run(){
+				while (state.getGameOn()){
+					try{
+						Thread.sleep(1000);
+						state = getHeartBeatMessage().getState();
+						//this is a debug info, delete it for release
+						repaint();
+					} catch (Exception e){
+						LOG.error("failed to update data");
+						System.exit(1);
+					}
+				}
+			}
+			
+			//the function to get heartbeat message
+			//will communicate with the heartbeat server thread in the backend
+			//and returns a class Message as updated information
+			private Message getHeartBeatMessage() throws Exception{
+				int serverPort = Integer.parseInt(configure.getProperty("backend_port_heartbeat"));
+				String serverAddress = configure.getProperty("backend_address");
+				try{
+					Socket socket = new Socket(serverAddress, serverPort);
+					ObjectInputStream ois=new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
+					Message message = (Message)ois.readObject();
+					ois.close();
+					socket.close();
+					return message;
+				} catch(Exception e){
+					LOG.error("failed to connect with server");
+					throw e;
+				}
 			}
 		}
 	}

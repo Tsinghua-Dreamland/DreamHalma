@@ -2,10 +2,13 @@ package cn.edu.tsinghua.ee.Dreamland.DreamHalma;
 
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.InetAddress;
 import java.io.ObjectOutputStream;
 import java.io.BufferedOutputStream;
 import java.io.InputStreamReader;
 import java.io.BufferedReader;
+import java.util.ArrayList;
+import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -24,6 +27,8 @@ public class Backend implements Runnable{
 	private Configure configure;
 	//the thread that deals with the heartbeat request from the Gui
 	private HeartBeat heartBeat;
+	//the list to keep record of all the players registerd
+	ArrayList<InetAddress> players = new ArrayList<InetAddress>();
 	
 	private static final Log LOG = LogFactory.getLog(Backend.class);
 	
@@ -51,7 +56,8 @@ public class Backend implements Runnable{
 				Thread heartBeatThread = new Thread(heartBeat);
 				heartBeatThread.start();
 			} catch (Exception e){
-				LOG.error("failed to initiate data in backend: "+e.getStackTrace());
+				LOG.error("failed to initiate data in backend: ");
+				e.printStackTrace();
 				System.exit(1);
 			}
 			LOG.info("Backend Initiated");
@@ -59,7 +65,8 @@ public class Backend implements Runnable{
 				//actually run the function to get movement request from Gui
 				this.startGame();
 			} catch (Exception e){
-				LOG.error("game halted in error: "+e.getStackTrace());
+				LOG.error("game halted in error: ");
+				e.printStackTrace();
 				System.exit(1);
 			}
 			LOG.info("Game finished successfully");
@@ -72,31 +79,102 @@ public class Backend implements Runnable{
 	
 	private void startGame() throws Exception{
 		
+		LOG.info("Game Controller Server Initiating");
 		int serverPortMovement = Integer.parseInt(configure.getProperty("backend_port_movement"));
 		ServerSocket server;
 		server = new ServerSocket(serverPortMovement);
 		
+		//register the players, until all the players are ready
+		LOG.info("Begin registration");
+		boolean success=true;
+		ArrayList<Integer> registered = new ArrayList<Integer>();
+		this.initiateRegister(server);
+		while(success && (registered.size()<state.getTotalPlayers())){
+			success = this.register(server, registered);
+		}
+		LOG.info("Registration over, start the game");
+		
 		//run this until the game is over
-		boolean finished = false;
-		while (!finished){
-			//read movement from Gui
-			Socket socket = server.accept();
+		while (state.getGameOn()){
+			this.act(server);
+		}
+		server.close();
+	}
+	
+	private void initiateRegister(ServerSocket server){
+		for(int i=0;i<state.getTotalPlayers();i++){
+			players.add(server.getInetAddress());
+		}
+	}
+	
+	//this function is designed to receive registration info from gui and return the initial state
+	private boolean register(ServerSocket server, ArrayList<Integer> registered) throws Exception{
+		boolean success = true;
+		Socket socket = server.accept();
+		BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		LOG.info("server built succesfully");
+		String command = br.readLine();
+		br.close();
+		socket.close();
+		//deal with the registration
+		String[] strs = Pattern.compile(",").split(command);
+		for(int i=0;i<strs.length;i++){
+			if(registered.contains(Integer.parseInt(strs[i]))){
+				success = false;
+				break;
+			}
+			else{
+				players.set(Integer.parseInt(strs[i])-1, socket.getInetAddress());
+				registered.add(Integer.parseInt(strs[i]));
+				LOG.info("player "+Integer.parseInt(strs[i])+" is from "+socket.getInetAddress());
+			}
+		}
+		socket = server.accept();
+		ObjectOutputStream oos = new ObjectOutputStream(
+				new BufferedOutputStream(socket.getOutputStream()));
+		//send the result back
+		Message message = new Message(state);
+		message.setRegistered(success);
+		oos.writeObject(message);
+		oos.flush();
+		//clean the environment
+		oos.close();
+		socket.close();
+		return success;
+	}
+	
+	//the function to deal with movement from the player
+	//transfer the information, deal with it, and return the result back
+	private boolean act(ServerSocket server) throws Exception{
+		boolean success = true;
+		//read movement from Gui
+		Socket socket = server.accept();
+		//if the connection is not established by the next player, close the socket and set if fail
+		//attention:gui has to deal with this exception accordingly
+		if(!socket.getInetAddress().equals(players.get(state.getNextPlayer()))){
+			socket.close();
+			return false;
+		} else{
 			BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			String Command = br.readLine();
+			String command = br.readLine();
 			//deal with the movement
-			;
+			success = state.move(command);
+			br.close();
+			socket.close();
 			//send the result back
+			socket = server.accept();
 			ObjectOutputStream oos = new ObjectOutputStream(
 					new BufferedOutputStream(socket.getOutputStream()));
 			Message message = new Message(state);
+			message.setIsValid(success);
 			oos.writeObject(message);
 			oos.flush();
 			//clean the environment
 			br.close();
 			oos.close();
 			socket.close();
+			return success;
 		}
-		server.close();
 	}
 	
 	//a thread to deal with the heartbeat request from the Gui
