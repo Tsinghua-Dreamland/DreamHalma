@@ -82,6 +82,7 @@ public class State implements Serializable {
 						chesses.add(new Chess(i-4, temp, 2));
 					temp=temp+1;end--;count--;
 				}
+				break;
 			}
 			case 3:{
 				int count=4;//the total layer of chesses is 4
@@ -107,6 +108,41 @@ public class State implements Serializable {
 						chesses.add(new Chess(i-8, temp, 3));
 					temp=temp-1;begin++;count--;
 				}
+				break;
+			}
+			case 4:
+			{
+				int count=4;//the total layer of chesses is 4
+				//for player 1
+				int temp=-5;
+				int begin=1;int end=4;
+				while(count>0){
+					for(int i=begin;i<=end;i++)
+						chesses.add(new Chess(i, temp, 1));
+					temp=temp-1;begin++;count--;
+				}
+				//for player 2
+				count=4;temp=4;begin=0;end=3;
+				while(count>0){
+					for(int i=begin;i<=end;i++)
+						chesses.add(new Chess(i+1, temp, 2));
+					temp=temp-1;begin++;count--;
+				}
+				//for player 3
+				count=4;temp=-4;begin=0;end=3;
+				while(count>0){
+					for(int i=begin;i<=end;i++)
+						chesses.add(new Chess(i-4, temp, 3));
+					temp=temp+1;end--;count--;
+				}
+				//for player 4
+				count=4;temp=5;begin=0;end=3;
+				while(count>0){
+					for(int i=begin;i<=end;i++)
+						chesses.add(new Chess(i-4, temp, 4));
+					temp=temp+1;end--;count--;
+				}
+				break;
 			}
 			case 6:{
 				int count=4;//the total layer of chesses is 4
@@ -150,13 +186,20 @@ public class State implements Serializable {
 				count=4;temp=-4;begin=0;end=3;
 				while(count>0){
 					for(int i=begin;i<=end;i++)
-						chesses.add(new Chess(i+5, temp, 5));
+						chesses.add(new Chess(i+5, temp, 6));
 					temp=temp+1;end--;count--;
 				}
+				break;
 			}
 		}
+		/*
+		for(Chess chess: this.chesses){
+			String output;
+			output="player "+chess.getOwner()+" Vert "+chess.getVert()+" Horiz  "+chess.getHoriz();
+			LOG.info(output);
+		}
+		*/
 	}
-	
 	//the function to move according to gui's command
 	public boolean move(String command){
 		//parse the start and end point of a move
