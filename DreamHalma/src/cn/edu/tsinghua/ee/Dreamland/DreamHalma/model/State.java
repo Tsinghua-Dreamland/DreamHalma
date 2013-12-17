@@ -58,6 +58,11 @@ public class State implements Serializable {
 			//initiate all the chess pieces according to how many players
 			this.initiateChess();
 			gameOn = true;
+			Chess start=new Chess(5,-1,1);
+			Chess end=new Chess(4,0,1);
+			boolean flag;
+			flag=validMove(start,end);
+			LOG.info(flag);
 		}
 		LOG.info("state initiated");
 	}
@@ -231,9 +236,91 @@ public class State implements Serializable {
 	
 	//check whether a move is valid, this should not change chesses structure through
 	private boolean validMove(Chess start, Chess end){
-		return true;
+		boolean judge;//whether the movement is right
+		judge=false;
+		HashSet<Chess>avail=new HashSet<Chess>();
+		validSet(start,avail);
+		if(avail.contains(end))
+			judge=true;
+		return judge;
 	}
-	
+	//recursion to find the avaliable set of movement
+	@SuppressWarnings("unused")
+	private void validSet(Chess start,HashSet<Chess>avail){
+		Chess c1=new Chess(start.getVert()+1,start.getHoriz(),start.getOwner());
+		Chess c2=new Chess(start.getVert()-1,start.getHoriz(),start.getOwner());
+		Chess c3=new Chess(start.getVert(),start.getHoriz()+1,start.getOwner());
+		Chess c4=new Chess(start.getVert(),start.getHoriz()-1,start.getOwner());
+		Chess c5=new Chess(start.getVert()+1,start.getHoriz()-1,start.getOwner());
+		Chess c6=new Chess(start.getVert()-1,start.getHoriz()+1,start.getOwner());
+		if(this.chesses.contains(c1)){
+			Chess now=new Chess(start.getVert()+2,start.getHoriz(),start.getOwner());
+			if(!this.chesses.contains(now)){
+				avail.add(now);
+				validSet(now,avail);
+			}
+			}
+			else{
+			avail.add(c1);
+			validSet(c1,avail);
+			}
+		if(this.chesses.contains(c2)){
+			Chess now=new Chess(start.getVert()-2,start.getHoriz(),start.getOwner());
+			if(!this.chesses.contains(now)){
+				avail.add(now);
+				validSet(now,avail);
+			}
+			}
+			else{
+			avail.add(c2);
+			validSet(c2,avail);
+			}
+		if(this.chesses.contains(c3)){
+			Chess now=new Chess(start.getVert(),start.getHoriz()+2,start.getOwner());
+			if(!this.chesses.contains(now)){
+				avail.add(now);
+				validSet(now,avail);
+			}
+			}
+			else{
+			avail.add(c3);
+			validSet(c3,avail);
+			}
+		if(this.chesses.contains(c4)){
+			Chess now=new Chess(start.getVert(),start.getHoriz()-2,start.getOwner());
+			if(!this.chesses.contains(now)){
+				avail.add(now);
+				validSet(now,avail);
+			}
+			}
+			else{
+			avail.add(c4);
+			validSet(c4,avail);
+			}
+		if(this.chesses.contains(c5)){
+			Chess now=new Chess(start.getVert()+2,start.getHoriz()-2,start.getOwner());
+			if(!this.chesses.contains(now)){
+				avail.add(now);
+				validSet(now,avail);
+			}
+			}
+			else{
+			avail.add(c5);
+			validSet(c5,avail);
+			}
+		if(this.chesses.contains(c6)){
+			Chess now=new Chess(start.getVert()-2,start.getHoriz()+2,start.getOwner());
+			if(!this.chesses.contains(now)){
+				avail.add(now);
+				validSet(now,avail);
+			}
+			}
+			else{
+			avail.add(c6);
+			validSet(c6,avail);
+			}
+		}
+
 	//for test purpose, clean this up for release
 	public String printChess(){
 		String s = "";
@@ -253,4 +340,7 @@ public class State implements Serializable {
 			;
 		}
 	}
+	
+	
 }
+

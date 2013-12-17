@@ -14,6 +14,14 @@ public class Chess implements Serializable{
 		this.owner = owner;
 	}
 	
+	@Override
+	 public boolean equals(Object object){
+		return ((((Chess)object).getVert()==this.getVert())&&(((Chess)object).getHoriz()==this.getHoriz())); 
+	 }
+
+	 public int hashcode(){
+		 return this.getHoriz();
+	 }
 	public int getVert(){
 		return this.vert;
 	}
