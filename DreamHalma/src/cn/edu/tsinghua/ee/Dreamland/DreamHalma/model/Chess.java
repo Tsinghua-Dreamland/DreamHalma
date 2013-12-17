@@ -16,11 +16,23 @@ public class Chess implements Serializable{
 	
 	@Override
 	 public boolean equals(Object object){
-		return ((((Chess)object).getVert()==this.getVert())&&(((Chess)object).getHoriz()==this.getHoriz())); 
+		if (this == object) return true;  
+        if (object == null) return false;  
+        if (getClass() != object.getClass()) return false;  
+		final Chess temp=(Chess)object;
+		if (vert != temp.vert)
+			   return false;
+		if (horiz != temp.horiz)
+			   return false;
+		return true;
 	 }
 
-	 public int hashcode(){
-		 return this.getHoriz();
+	public int hashcode(){
+		 final int prime = 31;  
+	        int result = 1;  
+	        result = prime * result + this.vert;
+	        result = prime*  result + this.horiz;
+	        return result;  
 	 }
 	public int getVert(){
 		return this.vert;

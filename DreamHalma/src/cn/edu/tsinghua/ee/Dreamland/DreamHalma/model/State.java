@@ -3,6 +3,7 @@ package cn.edu.tsinghua.ee.Dreamland.DreamHalma.model;
 import java.util.HashSet;
 import java.util.regex.Pattern;
 import java.io.Serializable;
+import java.util.ArrayList;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -25,10 +26,20 @@ public class State implements Serializable {
 	private int totalPlayers; 
 	// the next player in the game
 	private int nextPlayer = 0;
+	//the direction of movement
+	private ArrayList <Chess> dirt=new ArrayList<Chess>(6);
 	
 	public State() throws Exception{
 		configure = new Configure();
 		configure.setConfigure();
+		
+		//initiate dirt
+		dirt.add(new Chess(1,0,1));
+		dirt.add(new Chess(0,1,1));
+		dirt.add(new Chess(0,1,1));
+		dirt.add(new Chess(0,-1,1));
+		dirt.add(new Chess(1,-1,1));
+		dirt.add(new Chess(-1,1,1));
 	}
 	
 	public HashSet<Chess> getChesses(){
@@ -57,12 +68,16 @@ public class State implements Serializable {
 		} else {
 			//initiate all the chess pieces according to how many players
 			this.initiateChess();
+			
+			//for the debug of validSet
+			/*
 			gameOn = true;
-			Chess start=new Chess(5,-1,1);
-			Chess end=new Chess(4,0,1);
-			boolean flag;
+			Chess start=new Chess(4,-6,1);
+			Chess end=new Chess(2,-4,1);
+			boolean flag=false;
 			flag=validMove(start,end);
 			LOG.info(flag);
+			*/
 		}
 		LOG.info("state initiated");
 	}
@@ -240,86 +255,108 @@ public class State implements Serializable {
 		judge=false;
 		HashSet<Chess>avail=new HashSet<Chess>();
 		validSet(start,avail);
-		if(avail.contains(end))
+		if(compare(avail,end))
 			judge=true;
 		return judge;
 	}
+	//move towards the point of Hexagon
+	private Chess makeMove(Chess start,Chess direction){
+		return (new Chess(start.getVert()+direction.getVert(),start.getHoriz()+direction.getHoriz(),start.getOwner()));
+	}
 	//recursion to find the avaliable set of movement
-	@SuppressWarnings("unused")
 	private void validSet(Chess start,HashSet<Chess>avail){
-		Chess c1=new Chess(start.getVert()+1,start.getHoriz(),start.getOwner());
-		Chess c2=new Chess(start.getVert()-1,start.getHoriz(),start.getOwner());
-		Chess c3=new Chess(start.getVert(),start.getHoriz()+1,start.getOwner());
-		Chess c4=new Chess(start.getVert(),start.getHoriz()-1,start.getOwner());
-		Chess c5=new Chess(start.getVert()+1,start.getHoriz()-1,start.getOwner());
-		Chess c6=new Chess(start.getVert()-1,start.getHoriz()+1,start.getOwner());
-		if(this.chesses.contains(c1)){
-			Chess now=new Chess(start.getVert()+2,start.getHoriz(),start.getOwner());
-			if(!this.chesses.contains(now)){
-				avail.add(now);
-				validSet(now,avail);
-			}
-			}
-			else{
-			avail.add(c1);
-			validSet(c1,avail);
-			}
-		if(this.chesses.contains(c2)){
-			Chess now=new Chess(start.getVert()-2,start.getHoriz(),start.getOwner());
-			if(!this.chesses.contains(now)){
-				avail.add(now);
-				validSet(now,avail);
-			}
-			}
-			else{
-			avail.add(c2);
-			validSet(c2,avail);
-			}
-		if(this.chesses.contains(c3)){
-			Chess now=new Chess(start.getVert(),start.getHoriz()+2,start.getOwner());
-			if(!this.chesses.contains(now)){
-				avail.add(now);
-				validSet(now,avail);
-			}
-			}
-			else{
-			avail.add(c3);
-			validSet(c3,avail);
-			}
-		if(this.chesses.contains(c4)){
-			Chess now=new Chess(start.getVert(),start.getHoriz()-2,start.getOwner());
-			if(!this.chesses.contains(now)){
-				avail.add(now);
-				validSet(now,avail);
-			}
-			}
-			else{
-			avail.add(c4);
-			validSet(c4,avail);
-			}
-		if(this.chesses.contains(c5)){
-			Chess now=new Chess(start.getVert()+2,start.getHoriz()-2,start.getOwner());
-			if(!this.chesses.contains(now)){
-				avail.add(now);
-				validSet(now,avail);
-			}
-			}
-			else{
-			avail.add(c5);
-			validSet(c5,avail);
-			}
-		if(this.chesses.contains(c6)){
-			Chess now=new Chess(start.getVert()-2,start.getHoriz()+2,start.getOwner());
-			if(!this.chesses.contains(now)){
-				avail.add(now);
-				validSet(now,avail);
-			}
-			}
-			else{
-			avail.add(c6);
-			validSet(c6,avail);
-			}
+		if(!compare(avail,start)){
+		//for six direction
+		for(Chess temp:dirt)
+		{
+			if(compare(chesses,makeMove(start,temp))){
+				Chess now=makeMove(makeMove(start,temp),temp);
+				if(!compare(chesses,now)){
+					avail.add(now);
+					validSet(now,avail);
+				}
+				}
+				else{
+				if(check(makeMove(start,temp))){//if the point is in the chessboard
+				avail.add(makeMove(start,temp));
+				validSet(makeMove(start,temp),avail);
+				}
+				else
+					;
+				}
 		}
+		}
+		else 
+			;
+	}
+	//whether the chess is still in the chessboard
+	public boolean check(Chess now){
+		boolean flag=false;
+		if(now.getVert()>=-4&&now.getVert()<=4&&now.getHoriz()>=-4&&now.getHoriz()<=4)
+			flag=true;
+		else if(now.getVert()>=-4&&now.getVert()<=4&&now.getHoriz()>4){
+			if(now.getHoriz()==5&&now.getVert()>=-4&&now.getHoriz()<=-1)
+				flag=true;
+			else if(now.getHoriz()==6&&now.getVert()>=-4&&now.getHoriz()<=-2)
+				flag=true;
+			else if(now.getHoriz()==7&&now.getVert()>=-4&&now.getHoriz()<=-3)
+				flag=true;
+			else if(now.getHoriz()==8&&now.getVert()==-4)
+				flag=true;
+			else
+				;
+		}
+		else if(now.getVert()>=-4&&now.getVert()<=4&&now.getHoriz()<-4){
+			if(now.getHoriz()==-5&&now.getVert()>=1&&now.getHoriz()<=4)
+				flag=true;
+			else if(now.getHoriz()==-6&&now.getVert()>=2&&now.getHoriz()<=4)
+				flag=true;
+			else if(now.getHoriz()==-7&&now.getVert()>=3&&now.getHoriz()<=4)
+				flag=true;
+			else if(now.getHoriz()==-8&&now.getVert()==4)
+				flag=true;
+			else
+				;
+		}
+		else if(now.getHoriz()>=-4&&now.getHoriz()<=4&&now.getVert()<-4){
+			if(now.getVert()==-5&&now.getHoriz()>=1&&now.getHoriz()<=4)
+				flag=true;
+			else if(now.getVert()==-6&&now.getHoriz()>=2&&now.getHoriz()<=4)
+				flag=true;
+			else if(now.getVert()==-7&&now.getHoriz()>=3&&now.getHoriz()<=4)
+				flag=true;
+			else if(now.getVert()==-8&&now.getHoriz()==4)
+				flag=true;
+			else
+				;
+		}
+		else if(now.getHoriz()>=-4&&now.getHoriz()<=4&&now.getVert()>4){
+			if(now.getVert()==5&&now.getHoriz()>=-4&&now.getHoriz()<=-1)
+				flag=true;
+			else if(now.getVert()==6&&now.getHoriz()>=-4&&now.getHoriz()<=-2)
+				flag=true;
+			else if(now.getVert()==7&&now.getHoriz()>=-4&&now.getHoriz()<=-3)
+				flag=true;
+			else if(now.getVert()==8&&now.getHoriz()==-4)
+				flag=true;
+			else
+				;
+		}
+		else
+			;
+		return flag;
+	}
+	//whether one point is contained in the HashSet chesses
+	private boolean compare(HashSet<Chess> now,Chess exp){
+		boolean flag=false;
+		for(Chess temp:now){
+			if((temp.getVert()==exp.getVert())&&(temp.getHoriz()==exp.getHoriz()))
+				flag=true;
+			else 
+				;
+		}
+		return flag;
+	}
 
 	//for test purpose, clean this up for release
 	public String printChess(){
@@ -340,7 +377,5 @@ public class State implements Serializable {
 			;
 		}
 	}
-	
-	
 }
 
