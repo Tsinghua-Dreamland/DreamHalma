@@ -5,6 +5,7 @@ import java.io.Serializable;
 import cn.edu.tsinghua.ee.Dreamland.DreamHalma.model.State;
 
 //this is a only readable usage of class State, to transfer message across processes
+@SuppressWarnings("serial")
 public class Message implements Serializable{
 	
 	private State state;  // the state of the game

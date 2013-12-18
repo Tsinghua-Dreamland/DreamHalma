@@ -3,7 +3,9 @@ package cn.edu.tsinghua.ee.Dreamland.DreamHalma.model;
 import java.io.Serializable;
 
 //class where store a location and the belonging of a chess piece
+@SuppressWarnings("serial")
 public class Chess implements Serializable{
+
 	private int vert; // Vertical parameter
 	private int horiz; // Horizontal parameter
 	private int owner; // Owner of this chess piece

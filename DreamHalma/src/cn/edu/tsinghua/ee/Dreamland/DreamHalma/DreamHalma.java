@@ -27,5 +27,4 @@ public class DreamHalma {
 			System.exit(1);
 		}		
 	}
-	
 }

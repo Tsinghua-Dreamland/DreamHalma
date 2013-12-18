@@ -13,6 +13,7 @@ import cn.edu.tsinghua.ee.Dreamland.DreamHalma.model.Chess;
 import cn.edu.tsinghua.ee.Dreamland.DreamHalma.utils.DreamHalmaException;
 
 //class to show the states of the game.
+@SuppressWarnings("serial")
 public class State implements Serializable {
 	
 	private static final Log LOG = LogFactory.getLog(State.class);
@@ -21,7 +22,7 @@ public class State implements Serializable {
 	// a HashSet of all the chess pieces
 	private HashSet<Chess> chesses = new HashSet<Chess>(); 
 	//a marker to make sure whether the game is still on going, for the clean up need
-	private boolean gameOn; 
+	private boolean gameOn = true; 
 	// keep record of the total players in the game
 	private int totalPlayers; 
 	// the next player in the game
@@ -33,7 +34,7 @@ public class State implements Serializable {
 		configure = new Configure();
 		configure.setConfigure();
 		
-		//initiate dirt
+		//initiate directions
 		dirt.add(new Chess(1,0,1));
 		dirt.add(new Chess(0,1,1));
 		dirt.add(new Chess(0,1,1));
@@ -220,6 +221,7 @@ public class State implements Serializable {
 		}
 		*/
 	}
+	
 	//the function to move according to gui's command
 	public boolean move(String command){
 		//parse the start and end point of a move
@@ -227,7 +229,7 @@ public class State implements Serializable {
 		Chess start = new Chess(Integer.parseInt(strs[0]),Integer.parseInt(strs[1]),this.nextPlayer);
 		Chess end = new Chess(Integer.parseInt(strs[2]),Integer.parseInt(strs[3]),this.nextPlayer);
 		if (this.validMove(start, end)){
-			chesses.remove(start);
+			removeChess(start);
 			chesses.add(end);
 			this.toNextPlayer();
 			this.checkIsGameFinished();
@@ -238,18 +240,32 @@ public class State implements Serializable {
 		}
 	}
 	
+	//remove the chess from chesses
+	//this function is because we cannot fix the contains() function in Hashset<chesses>
+	private void removeChess(Chess chess){
+		for(Chess temp:this.chesses){
+			if((chess.getVert()==temp.getVert())
+					&&(chess.getHoriz()==temp.getHoriz())
+					&&(chess.getOwner()==temp.getOwner()))
+				chesses.remove(temp);
+		}
+	}
+	
 	//get the "int nextPlayer" to the next player
 	private void toNextPlayer(){
-		
+		if(this.nextPlayer<this.totalPlayers)
+			this.nextPlayer = this.nextPlayer+1;
+		else
+			this.nextPlayer = 1;
 	}
 	
 	//check if the game is finished, set gameOn if necessary
+	//TO DO:we have to fill this blank to stop the game
 	private void checkIsGameFinished(){
 		this.gameOn = true;
 	}
 	
-	
-	//check whether a move is valid, this should not change chesses structure through
+	//check whether a move is valid, this should not change chesses structure though
 	private boolean validMove(Chess start, Chess end){
 		boolean judge;//whether the movement is right
 		judge=false;
@@ -259,36 +275,40 @@ public class State implements Serializable {
 			judge=true;
 		return judge;
 	}
+	
 	//move towards the point of Hexagon
 	private Chess makeMove(Chess start,Chess direction){
 		return (new Chess(start.getVert()+direction.getVert(),start.getHoriz()+direction.getHoriz(),start.getOwner()));
 	}
+	
 	//recursion to find the avaliable set of movement
+	//TO DO:if are the else path useful? maybe we should remove them if unnecessary
 	private void validSet(Chess start,HashSet<Chess>avail){
 		if(!compare(avail,start)){
-		//for six direction
-		for(Chess temp:dirt)
-		{
-			if(compare(chesses,makeMove(start,temp))){
-				Chess now=makeMove(makeMove(start,temp),temp);
-				if(!compare(chesses,now)){
-					avail.add(now);
-					validSet(now,avail);
-				}
+			//for six direction
+			for(Chess temp:dirt)
+			{
+				if(compare(chesses,makeMove(start,temp))){
+					Chess now=makeMove(makeMove(start,temp),temp);
+					if(!compare(chesses,now)){
+						avail.add(now);
+						validSet(now,avail);
+					}
 				}
 				else{
-				if(check(makeMove(start,temp))){//if the point is in the chessboard
-				avail.add(makeMove(start,temp));
-				validSet(makeMove(start,temp),avail);
+					if(check(makeMove(start,temp))){//if the point is in the chessboard
+						avail.add(makeMove(start,temp));
+						validSet(makeMove(start,temp),avail);
+					}
+					else
+						;
 				}
-				else
-					;
-				}
-		}
+			}
 		}
 		else 
 			;
 	}
+	
 	//whether the chess is still in the chessboard
 	public boolean check(Chess now){
 		boolean flag=false;
@@ -303,8 +323,6 @@ public class State implements Serializable {
 				flag=true;
 			else if(now.getHoriz()==8&&now.getVert()==-4)
 				flag=true;
-			else
-				;
 		}
 		else if(now.getVert()>=-4&&now.getVert()<=4&&now.getHoriz()<-4){
 			if(now.getHoriz()==-5&&now.getVert()>=1&&now.getHoriz()<=4)
@@ -315,8 +333,6 @@ public class State implements Serializable {
 				flag=true;
 			else if(now.getHoriz()==-8&&now.getVert()==4)
 				flag=true;
-			else
-				;
 		}
 		else if(now.getHoriz()>=-4&&now.getHoriz()<=4&&now.getVert()<-4){
 			if(now.getVert()==-5&&now.getHoriz()>=1&&now.getHoriz()<=4)
@@ -327,8 +343,6 @@ public class State implements Serializable {
 				flag=true;
 			else if(now.getVert()==-8&&now.getHoriz()==4)
 				flag=true;
-			else
-				;
 		}
 		else if(now.getHoriz()>=-4&&now.getHoriz()<=4&&now.getVert()>4){
 			if(now.getVert()==5&&now.getHoriz()>=-4&&now.getHoriz()<=-1)
@@ -339,21 +353,20 @@ public class State implements Serializable {
 				flag=true;
 			else if(now.getVert()==8&&now.getHoriz()==-4)
 				flag=true;
-			else
-				;
 		}
-		else
-			;
+
 		return flag;
 	}
+	
 	//whether one point is contained in the HashSet chesses
-	private boolean compare(HashSet<Chess> now,Chess exp){
+	public static boolean compare(HashSet<Chess> now,Chess exp){
 		boolean flag=false;
 		for(Chess temp:now){
 			if((temp.getVert()==exp.getVert())&&(temp.getHoriz()==exp.getHoriz()))
+			{
 				flag=true;
-			else 
-				;
+				break;
+			}
 		}
 		return flag;
 	}

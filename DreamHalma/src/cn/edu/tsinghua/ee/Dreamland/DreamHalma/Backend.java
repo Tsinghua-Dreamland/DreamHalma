@@ -90,12 +90,14 @@ public class Backend implements Runnable{
 		ArrayList<Integer> registered = new ArrayList<Integer>();
 		this.initiateRegister(server);
 		while(success && (registered.size()<state.getTotalPlayers())){
+			LOG.info("waiting for client side to register");
 			success = this.register(server, registered);
 		}
 		LOG.info("Registration over, start the game");
 		
 		//run this until the game is over
 		while (state.getGameOn()){
+			LOG.info("waiting for the move from player "+state.getNextPlayer());
 			this.act(server);
 		}
 		server.close();
@@ -155,12 +157,14 @@ public class Backend implements Runnable{
 			socket.close();
 			return false;
 		} else{
-			BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			//receive command from gui
+			BufferedReader br = new BufferedReader(
+					new InputStreamReader(socket.getInputStream()));
 			String command = br.readLine();
-			//deal with the movement
-			success = state.move(command);
 			br.close();
 			socket.close();
+			//deal with the movement
+			success = state.move(command);
 			//send the result back
 			socket = server.accept();
 			ObjectOutputStream oos = new ObjectOutputStream(
@@ -182,7 +186,8 @@ public class Backend implements Runnable{
 	private class HeartBeat implements Runnable{
 		public void run(){
 			LOG.info("Heartbeat Server Initiating");
-			int serverPortHeartBeat = Integer.parseInt(configure.getProperty("backend_port_heartbeat"));
+			int serverPortHeartBeat = Integer.parseInt(
+					configure.getProperty("backend_port_heartbeat"));
 			ServerSocket server;
 			
 			try{

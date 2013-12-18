@@ -30,7 +30,6 @@ import cn.edu.tsinghua.ee.Dreamland.DreamHalma.model.State;
 import cn.edu.tsinghua.ee.Dreamland.DreamHalma.model.Message;
 import cn.edu.tsinghua.ee.Dreamland.DreamHalma.model.Chess;
 import cn.edu.tsinghua.ee.Dreamland.DreamHalma.utils.Configure;
-
 import cn.edu.tsinghua.ee.Dreamland.DreamHalma.model.Chess;
 
 //gui of the whole game, which class chess as the main backend
@@ -51,6 +50,7 @@ public class Gui implements Runnable {
 		}
 	} 
 	
+	@SuppressWarnings("serial")
 	class MyFrame extends Frame {
 		
 		private State state;
@@ -66,8 +66,6 @@ public class Gui implements Runnable {
 				configure.setConfigure();
 				//register the gui and refresh the chess board the first time
 				state = this.registerChess().getState();
-				//this is a debug info, delete it for release
-				LOG.info("chess pieces: " + state.printChess());
 				//initiate the chess board
 				Dimension dimension = new Dimension(602, 750);
 				final Point origin = new Point(0, 0);
@@ -133,26 +131,38 @@ public class Gui implements Runnable {
 			points.add(p);
 		}
 		
-		public void addState(State s)
-		{		  
-		}
-		
 		//the function to register to the server as a client
 		//returns the initial state of the game
 		private Message registerChess() throws Exception{
 			LOG.info("registering the gui to server");
+			String str = configure.getProperty("local_players_detail");
+			return this.sendMessage(str);
+		}
+		
+		//send the information to the server and wait for returned info
+		private Message sendMove(Chess start, Chess end) throws Exception{
+			LOG.info("sending movement message to the server");
+			String str = start.getHoriz()+","+start.getVert()
+						+","+end.getHoriz()+","+end.getVert();
+			return this.sendMessage(str);
+		}
+		
+		//send message to server and get result
+		private Message sendMessage(String str) throws Exception{
 			int serverPort = Integer.parseInt(configure.getProperty("backend_port_movement"));
 			String serverAddress = configure.getProperty("backend_address");
 			try{
 				Socket socket = new Socket(serverAddress, serverPort);
-				PrintWriter pw = new PrintWriter(new OutputStreamWriter(new BufferedOutputStream(socket.getOutputStream())));
+				PrintWriter pw = new PrintWriter(new OutputStreamWriter(
+						new BufferedOutputStream(socket.getOutputStream())));
 				//send out the local players at this gui
-				pw.println(configure.getProperty("local_players_detail"));
+				pw.println(str);
 				pw.flush();
 				pw.close();
 				socket.close();
 				socket = new Socket(serverAddress, serverPort);
-				ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
+				ObjectInputStream ois = new ObjectInputStream(
+						new BufferedInputStream(socket.getInputStream()));
 				Message message = (Message)ois.readObject();
 				ois.close();
 				socket.close();
@@ -162,6 +172,7 @@ public class Gui implements Runnable {
 				throw e;
 			}
 		}
+		
 		
 		//this is a class to update the panal from the server every other second
 		class StatusUpdater implements Runnable{
