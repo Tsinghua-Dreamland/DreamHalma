@@ -1,6 +1,5 @@
 package cn.edu.tsinghua.ee.Dreamland.DreamHalma;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.Graphics;
@@ -14,7 +13,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.io.BufferedInputStream;
 import java.io.ObjectInputStream;
 import java.io.BufferedOutputStream;
@@ -30,7 +28,6 @@ import cn.edu.tsinghua.ee.Dreamland.DreamHalma.model.State;
 import cn.edu.tsinghua.ee.Dreamland.DreamHalma.model.Message;
 import cn.edu.tsinghua.ee.Dreamland.DreamHalma.model.Chess;
 import cn.edu.tsinghua.ee.Dreamland.DreamHalma.utils.Configure;
-import cn.edu.tsinghua.ee.Dreamland.DreamHalma.model.Chess;
 
 //gui of the whole game, which class chess as the main backend
 public class Gui implements Runnable {
@@ -87,10 +84,31 @@ public class Gui implements Runnable {
 				StatusUpdater statusUpdater = new StatusUpdater();
 				Thread statusUpdaterThread = new Thread(statusUpdater);
 				statusUpdaterThread.start();
+				//test function, delete for release
+				this.test();
 			} catch (Exception e){
 				LOG.error("failed to initiate data");
 				throw e;
 			}
+		}
+		
+		private void test() throws Exception{
+			LOG.info("Backend test started");
+			Chess start = new Chess(4,1,1);
+			Chess end = new Chess(4,0,1);
+			this.testImpl(start, end);
+			start = new Chess(-4,-1,2);
+			end = new Chess(-4,-0,2);
+			this.testImpl(start, end);
+			start = new Chess(-4,3,1);
+			end = new Chess(-4,-1,1);
+			this.testImpl(start, end);
+		}
+		
+		private void testImpl(Chess start, Chess end) throws Exception{
+			Message message = this.sendMove(start, end);
+			LOG.info("GUI returned info: isValid = "+message.getIsValid());
+			LOG.info("GUI returned info: nextPlayer = "+message.getState().getNextPlayer());
 		}
 		
 		public void paint(Graphics g)

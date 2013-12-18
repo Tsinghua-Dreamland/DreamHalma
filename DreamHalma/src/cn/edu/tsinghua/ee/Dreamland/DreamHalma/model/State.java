@@ -267,12 +267,16 @@ public class State implements Serializable {
 	
 	//check whether a move is valid, this should not change chesses structure though
 	private boolean validMove(Chess start, Chess end){
+		LOG.info("checking whether the move of player "+
+				start.getOwner()+" is valid: start: ("+start.getHoriz()
+				+","+start.getVert()+"), end: ("+end.getHoriz()+","+end.getVert()+")");
 		boolean judge;//whether the movement is right
 		judge=false;
 		HashSet<Chess>avail=new HashSet<Chess>();
 		validSet(start,avail);
 		if(compare(avail,end))
 			judge=true;
+		LOG.info("check result: "+judge);
 		return judge;
 	}
 	

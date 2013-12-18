@@ -23,7 +23,8 @@ public class DreamHalma {
 			guiThread.start();
 		}
 		catch(Exception e){
-			LOG.error("Sorry to exit, Error running DreamHalma: " + e.getStackTrace());
+			LOG.error("Sorry to exit, Error running DreamHalma: ");
+			e.printStackTrace();
 			System.exit(1);
 		}		
 	}

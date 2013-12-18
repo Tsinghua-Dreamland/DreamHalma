@@ -203,7 +203,8 @@ public class Backend implements Runnable{
 					socket.close();
 				}
 			} catch(Exception e){
-				System.out.println("failed to run socket server"+e);
+				System.out.println("failed to run socket server");
+				e.printStackTrace();
 				System.exit(1);
 			}
 		}

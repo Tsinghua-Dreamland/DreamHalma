@@ -10,7 +10,7 @@ public class Chess implements Serializable{
 	private int horiz; // Horizontal parameter
 	private int owner; // Owner of this chess piece
 	
-	Chess(int vert, int horiz, int owner){
+	public Chess(int vert, int horiz, int owner){
 		this.vert = vert;
 		this.horiz = horiz;
 		this.owner = owner;
