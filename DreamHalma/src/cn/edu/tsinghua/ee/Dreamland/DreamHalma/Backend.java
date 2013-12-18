@@ -153,7 +153,7 @@ public class Backend implements Runnable{
 		Socket socket = server.accept();
 		//if the connection is not established by the next player, close the socket and set if fail
 		//attention:gui has to deal with this exception accordingly
-		if(!socket.getInetAddress().equals(players.get(state.getNextPlayer()))){
+		if(!socket.getInetAddress().equals(players.get(state.getNextPlayer()-1))){
 			socket.close();
 			return false;
 		} else{

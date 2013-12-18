@@ -94,14 +94,21 @@ public class Gui implements Runnable {
 		
 		private void test() throws Exception{
 			LOG.info("Backend test started");
-			Chess start = new Chess(4,1,1);
-			Chess end = new Chess(4,0,1);
+			LOG.info("inital "+state.getChesses().size()+" chesses: "+state.printChess());
+			Chess start = new Chess(-5,1,1);
+			Chess end = new Chess(-4,0,1);
 			this.testImpl(start, end);
-			start = new Chess(-4,-1,2);
-			end = new Chess(-4,-0,2);
+			Thread.sleep(1000);
+			start = new Chess(5,-1,2);
+			end = new Chess(4,-2,2);
 			this.testImpl(start, end);
-			start = new Chess(-4,3,1);
-			end = new Chess(-4,-1,1);
+			Thread.sleep(1000);
+			start = new Chess(5,-1,2);
+			end = new Chess(4,0,2);
+			this.testImpl(start, end);
+			Thread.sleep(1000);
+			start = new Chess(-7,3,1);
+			end = new Chess(-3,-1,1);
 			this.testImpl(start, end);
 		}
 		
@@ -109,6 +116,7 @@ public class Gui implements Runnable {
 			Message message = this.sendMove(start, end);
 			LOG.info("GUI returned info: isValid = "+message.getIsValid());
 			LOG.info("GUI returned info: nextPlayer = "+message.getState().getNextPlayer());
+			LOG.info(message.getState().getChesses().size()+" chesses: "+message.getState().printChess());
 		}
 		
 		public void paint(Graphics g)
@@ -199,7 +207,6 @@ public class Gui implements Runnable {
 					try{
 						Thread.sleep(1000);
 						state = getHeartBeatMessage().getState();
-						//this is a debug info, delete it for release
 						repaint();
 					} catch (Exception e){
 						LOG.error("failed to update data");

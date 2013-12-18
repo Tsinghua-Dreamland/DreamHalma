@@ -26,7 +26,7 @@ public class State implements Serializable {
 	// keep record of the total players in the game
 	private int totalPlayers; 
 	// the next player in the game
-	private int nextPlayer = 0;
+	private int nextPlayer = 1;
 	//the direction of movement
 	private ArrayList <Chess> dirt=new ArrayList<Chess>(6);
 	
@@ -244,10 +244,11 @@ public class State implements Serializable {
 	//this function is because we cannot fix the contains() function in Hashset<chesses>
 	private void removeChess(Chess chess){
 		for(Chess temp:this.chesses){
-			if((chess.getVert()==temp.getVert())
-					&&(chess.getHoriz()==temp.getHoriz())
-					&&(chess.getOwner()==temp.getOwner()))
+			if((temp.getHoriz()==chess.getHoriz())&&(temp.getVert()==chess.getVert()))
+			{
 				chesses.remove(temp);
+				break;
+			}
 		}
 	}
 	
@@ -265,6 +266,22 @@ public class State implements Serializable {
 		this.gameOn = true;
 	}
 	
+	private boolean validMoveTest(Chess start, Chess end){
+		LOG.info("checking whether the move of player "+
+				start.getOwner()+" is valid: start: ("+start.getHoriz()
+				+","+start.getVert()+"), end: ("+end.getHoriz()+","+end.getVert()+")");
+		//if the start chess is not reachable
+		if(!compare(this.chesses,start))
+			return false;
+		//if the end chess is existed
+		if(compare(this.chesses,end))
+			return false;
+		int distance = Math.abs(start.getHoriz()) - Math.abs(end.getHoriz());
+		if(Math.abs(distance)>1)
+			return false;
+		return true;
+	}
+	
 	//check whether a move is valid, this should not change chesses structure though
 	private boolean validMove(Chess start, Chess end){
 		LOG.info("checking whether the move of player "+
@@ -276,7 +293,6 @@ public class State implements Serializable {
 		validSet(start,avail);
 		if(compare(avail,end))
 			judge=true;
-		LOG.info("check result: "+judge);
 		return judge;
 	}
 	
