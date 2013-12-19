@@ -1,5 +1,6 @@
 package cn.edu.tsinghua.ee.Dreamland.DreamHalma;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.Graphics;
@@ -50,15 +51,22 @@ public class Gui implements Runnable {
 	@SuppressWarnings("serial")
 	class MyFrame extends Frame {
 		
-		private State state;
+		public State state;
 		private Configure configure;
-		ArrayList<Point> points = null;
+		public Point points;
+		public int whichClick = 0;
+		public int wrongClick = 0;
+		public Chess firstClick;
+		public Message FailMessage;
+		//public boolean init = true;
 		
 		public MyFrame(String s) throws Exception{
 			super(s);
 			configure = new Configure();
 			state = new State();
-			points = new ArrayList<Point>();
+			points = new Point();
+			FailMessage = new Message(state);
+			//points = new ArrayList<Point>();
 			try{
 				configure.setConfigure();
 				//register the gui and refresh the chess board the first time
@@ -85,18 +93,18 @@ public class Gui implements Runnable {
 				Thread statusUpdaterThread = new Thread(statusUpdater);
 				statusUpdaterThread.start();
 				//test function, delete for release
-				this.test();
+				//this.test();
 			} catch (Exception e){
 				LOG.error("failed to initiate data");
 				throw e;
 			}
 		}
 		
-		private void test() throws Exception{
+		public void test() throws Exception{
 			LOG.info("Backend test started");
 			LOG.info("inital "+state.getChesses().size()+" chesses: "+state.printChess());
-			Chess start = new Chess(-5,1,1);
-			Chess end = new Chess(-4,0,1);
+			Chess start = new Chess(-5,1,2);
+			Chess end = new Chess(-4,0,2);
 			this.testImpl(start, end);
 			Thread.sleep(1000);
 			start = new Chess(5,-1,2);
@@ -112,7 +120,7 @@ public class Gui implements Runnable {
 			this.testImpl(start, end);
 		}
 		
-		private void testImpl(Chess start, Chess end) throws Exception{
+		public void testImpl(Chess start, Chess end) throws Exception{
 			Message message = this.sendMove(start, end);
 			LOG.info("GUI returned info: isValid = "+message.getIsValid());
 			LOG.info("GUI returned info: nextPlayer = "+message.getState().getNextPlayer());
@@ -124,7 +132,21 @@ public class Gui implements Runnable {
 			final Image imageBg = Toolkit.getDefaultToolkit()
 					.getImage("images/background.jpg");
 			g.drawImage(imageBg,0,25, this);
-			  
+			final Image imageNextPlayer = Toolkit.getDefaultToolkit()
+					.getImage("images/next player.png");
+			g.drawImage(imageNextPlayer,0,10, this);
+			if (state.getNextPlayer() == 1)
+			{
+				final Image img1 = Toolkit.getDefaultToolkit()
+						.getImage("images/marbles/yellow.png");
+				g.drawImage(img1,150,44, this);
+			}
+			else
+			{
+				final Image img1 = Toolkit.getDefaultToolkit()
+						.getImage("images/marbles/purple.png");
+				g.drawImage(img1,150,44, this);
+			}
 			for(Chess chess: state.getChesses()){
 				int x = chess.getHoriz();
 				int y = chess.getVert();
@@ -132,9 +154,37 @@ public class Gui implements Runnable {
 				int yy = 370 + y*43;
 				//System.out.println(x+","+y);
 				//LOG.info("Chess marked");
-				final Image img1 = Toolkit.getDefaultToolkit()
-						.getImage("images/marbles/yellow.png");
-				g.drawImage(img1,xx,yy, this); 
+				if (chess.getOwner() == 1){
+					final Image img1 = Toolkit.getDefaultToolkit()
+							.getImage("images/marbles/yellow.png");
+					g.drawImage(img1,xx,yy, this); 	
+				}
+				else{
+					final Image img1 = Toolkit.getDefaultToolkit()
+							.getImage("images/marbles/purple.png");
+					g.drawImage(img1,xx,yy, this); 
+				}
+				if (whichClick == 1){
+					   final Image circle = Toolkit.getDefaultToolkit()
+					           .getImage("images/marbles/blue.png");
+					   g.drawImage(circle,points.x,points.y, this); 
+					   //g.fillOval(p.x-6,p.y-8,25,25);
+				}
+				//if (init == false){
+					if (wrongClick == 1){
+						   final Image cwrong = Toolkit.getDefaultToolkit()
+						           .getImage("images/choosefail.png");
+						   g.drawImage(cwrong,-5,45, this); 
+						   //g.fillOval(p.x-6,p.y-8,25,25);
+					}
+					else{
+						if (FailMessage.getIsValid() == false){
+							final Image pwrong = Toolkit.getDefaultToolkit()
+									.getImage("images/playfail.png");
+							g.drawImage(pwrong,-5,45, this); 
+						}
+					}
+				//}	
 			 }
 		}
 		
@@ -151,12 +201,6 @@ public class Gui implements Runnable {
 			paint(gBuffer);
 			g.drawImage(iBuffer, 0, 0, this);
 		}
-
-		public void addPoint(Point p)
-		{
-			points.add(p);
-		}
-		
 		//the function to register to the server as a client
 		//returns the initial state of the game
 		private Message registerChess() throws Exception{
@@ -170,7 +214,11 @@ public class Gui implements Runnable {
 			LOG.info("sending movement message to the server");
 			String str = start.getHoriz()+","+start.getVert()
 						+","+end.getHoriz()+","+end.getVert();
-			return this.sendMessage(str);
+			Message message = this.sendMessage(str);
+			LOG.info("GUI returned info: isValid = "+message.getIsValid());
+			LOG.info("GUI returned info: nextPlayer = "+message.getState().getNextPlayer());
+			LOG.info(message.getState().getChesses().size()+" chesses: "+message.getState().printChess());
+			return message;
 		}
 		
 		//send message to server and get result
@@ -244,45 +292,60 @@ public class Gui implements Runnable {
 			mf.repaint();
 			int x = e.getX()-12;
 			int y = e.getY()-12;
-			for (int i = 0; i <= 2; i++){
+			//mf.init = false;
+			for (int i = 0; i <= 16; i++){
 				if (i%2 == 0){
 					for (int k = -2; k <= 574; k+=48){
-						if ((k-x)*(k-x)+(43*i+24-y)*(43*i+24-y)<=169){
-							//here send the coordinates
-							mf.addPoint((new Point(k,43*i+24)));
-							mf.repaint();
+						if ((k-x)*(k-x)+(43*i+26-y)*(43*i+26-y)<=169){
+							this.dealwithClick(mf, k, i);
 						}
 					}
 				}
 				else{
 					for (int k = 22; k <= 552; k+=48){
-						if ((k-x)*(k-x)+(43*i+24-y)*(43*i+24-y)<=169){
+						if ((k-x)*(k-x)+(43*i+26-y)*(43*i+26-y)<=169){
 							//here send the coordinates
-							mf.addPoint((new Point(k,43*i+24)));
-							mf.repaint();
+							this.dealwithClick(mf, k, i);
 						}
 					}
 				}
 			}
-			for (int i = 3; i <= 16; i++){
-				if (i%2 == 0){
-					for (int k = -2; k <= 574; k+=48){
-						if ((k-x)*(k-x)+(43*i+26-y)*(43*i+26-y)<=169){
-							//here send the coordinates
-							mf.addPoint((new Point(k,43*i+26)));
-							mf.repaint();
-						}
+		}
+		public void dealwithClick(MyFrame mf, int k,int i)
+		{
+			//here send the coordinates
+			int xx = (k+2)/48 - 6 - (i - i%2 -8)/2;
+			int yy = i - 8;
+			if (mf.whichClick == 0)
+			{
+				mf.wrongClick = 1;
+				for(Chess chess: mf.state.getChesses()){
+					int cx = chess.getHoriz();
+					int cy = chess.getVert();
+					int owner = chess.getOwner();
+					if (cx == xx && cy == yy && owner == mf.state.getNextPlayer()){
+						mf.firstClick = new Chess(xx,yy,0);
+						mf.points.x = k;
+						mf.points.y = 43*i+26;
+						mf.whichClick = 1;
+						mf.wrongClick = 0;
+						break;
 					}
 				}
-				else{
-					for (int k = 22; k <= 552; k+=48){
-						if ((k-x)*(k-x)+(43*i+26-y)*(43*i+26-y)<=169){
-							//here send the coordinates
-							mf.addPoint((new Point(k,43*i+26)));
-							mf.repaint();
-						}
-					}
+				mf.repaint();
+			}
+			else
+			{
+				mf.wrongClick = 0;
+				Chess secondClick = new Chess(xx,yy,0);
+				try {
+					mf.FailMessage = mf.sendMove(mf.firstClick, secondClick);
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
 				}
+				mf.whichClick = 0;
+				mf.repaint();
 			}
 		}
 	}
