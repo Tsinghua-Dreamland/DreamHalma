@@ -283,14 +283,15 @@ public class State implements Serializable {
 	}
 	
 	//check whether a move is valid, this should not change chesses structure though
-	private boolean validMove(Chess start, Chess end){
+	public boolean validMove(Chess start, Chess end){
 		LOG.info("checking whether the move of player "+
 				start.getOwner()+" is valid: start: ("+start.getHoriz()
 				+","+start.getVert()+"), end: ("+end.getHoriz()+","+end.getVert()+")");
 		boolean judge;//whether the movement is right
 		judge=false;
 		HashSet<Chess>avail=new HashSet<Chess>();
-		validSet(start,avail);
+		boolean flag=false;//for the principle of movement
+		validSet(start,avail,flag,new Chess(-10,-10,1));
 		if(compare(avail,end))
 			judge=true;
 		return judge;
@@ -303,22 +304,26 @@ public class State implements Serializable {
 	
 	//recursion to find the avaliable set of movement
 	//TO DO:if are the else path useful? maybe we should remove them if unnecessary
-	private void validSet(Chess start,HashSet<Chess>avail){
+	private void validSet(Chess start,HashSet<Chess>avail,boolean flag,Chess from){
+		if(check(from))
+			avail.add(from);//cannot be back to the original point
 		if(!compare(avail,start)){
 			//for six direction
 			for(Chess temp:dirt)
 			{
+				Chess temp1=makeMove(start,temp);
 				if(compare(chesses,makeMove(start,temp))){
 					Chess now=makeMove(makeMove(start,temp),temp);
-					if(!compare(chesses,now)){
+					if(!compare(chesses,now)&&check(now)){
+						flag=true;//cannnot make one step move, can only jump
+						validSet(now,avail,flag,start);
 						avail.add(now);
-						validSet(now,avail);
 					}
 				}
 				else{
-					if(check(makeMove(start,temp))){//if the point is in the chessboard
+					if(check(makeMove(start,temp))&&flag==false){//if the point is in the chessboard
 						avail.add(makeMove(start,temp));
-						validSet(makeMove(start,temp),avail);
+						//validSet(makeMove(start,temp),avail);
 					}
 					else
 						;
