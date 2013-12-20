@@ -124,7 +124,7 @@ public class Gui implements Runnable {
 			Message message = this.sendMove(start, end);
 			LOG.info("GUI returned info: isValid = "+message.getIsValid());
 			LOG.info("GUI returned info: nextPlayer = "+message.getState().getNextPlayer());
-			LOG.info(message.getState().getChesses().size()+" chesses: "+message.getState().printChess());
+			//LOG.info(message.getState().getChesses().size()+" chesses: "+message.getState().printChess());
 		}
 		
 		public void paint(Graphics g)
@@ -217,7 +217,7 @@ public class Gui implements Runnable {
 			Message message = this.sendMessage(str);
 			LOG.info("GUI returned info: isValid = "+message.getIsValid());
 			LOG.info("GUI returned info: nextPlayer = "+message.getState().getNextPlayer());
-			LOG.info(message.getState().getChesses().size()+" chesses: "+message.getState().printChess());
+			//LOG.info(message.getState().getChesses().size()+" chesses: "+message.getState().printChess());
 			return message;
 		}
 		

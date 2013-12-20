@@ -69,16 +69,6 @@ public class State implements Serializable {
 		} else {
 			//initiate all the chess pieces according to how many players
 			this.initiateChess();
-			
-			//for the debug of validSet
-			/*
-			gameOn = true;
-			Chess start=new Chess(4,-6,1);
-			Chess end=new Chess(2,-4,1);
-			boolean flag=false;
-			flag=validMove(start,end);
-			LOG.info(flag);
-			*/
 		}
 		LOG.info("state initiated");
 	}
@@ -213,13 +203,6 @@ public class State implements Serializable {
 				break;
 			}
 		}
-		/*
-		for(Chess chess: this.chesses){
-			String output;
-			output="player "+chess.getOwner()+" Vert "+chess.getVert()+" Horiz  "+chess.getHoriz();
-			LOG.info(output);
-		}
-		*/
 	}
 	
 	//the function to move according to gui's command
@@ -229,10 +212,10 @@ public class State implements Serializable {
 		Chess start = new Chess(Integer.parseInt(strs[0]),Integer.parseInt(strs[1]),this.nextPlayer);
 		Chess end = new Chess(Integer.parseInt(strs[2]),Integer.parseInt(strs[3]),this.nextPlayer);
 		if (this.validMove(start, end)){
-			removeChess(start);
-			chesses.add(end);
-			this.toNextPlayer();
-			this.checkIsGameFinished();
+			removeChess(start); //remove the start point
+			chesses.add(end); //add the destiniation point
+			this.toNextPlayer(); //next player's turn
+			this.checkIsGameFinished(); //check whether the game is finished
 			return true;
 		}
 		else{
@@ -291,6 +274,12 @@ public class State implements Serializable {
 		HashSet<Chess>avail=new HashSet<Chess>();
 		boolean flag=false;//for the principle of movement
 		validSet(start,avail,flag,new Chess(-10,-10,1));
+		//test info, delete for later release
+		String strAvailableDest = "";
+		for (Chess tempTest:avail){
+			strAvailableDest = strAvailableDest + tempTest.printChess()+"; ";
+		}
+		LOG.info("available sets of destinations : "+strAvailableDest);
 		if(compare(avail,end))
 			return true;
 		else 
@@ -408,14 +397,19 @@ public class State implements Serializable {
 	}
 	
 	//for test purpose
-	public void test(){
-		try{
-			Thread.sleep(10000);
-			LOG.info("chesses clear");
-			this.chesses.clear();
-		}	catch(Exception e){
-			;
-		}
+	public void testChesses() throws Exception{
+		Thread.sleep(10000);
+		LOG.info("chesses clear");
+		this.chesses.clear();
+	}
+	
+	public void testValidSet(){
+		gameOn = true;
+		Chess start=new Chess(4,-6,1);
+		Chess end=new Chess(2,-4,1);
+		boolean flag=false;
+		flag=validMove(start,end);
+		LOG.info(flag);
 	}
 }
 
