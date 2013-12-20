@@ -103,20 +103,20 @@ public class Gui implements Runnable {
 		public void test() throws Exception{
 			LOG.info("Backend test started");
 			LOG.info("inital "+state.getChesses().size()+" chesses: "+state.printChess());
-			Chess start = new Chess(-5,1,2);
-			Chess end = new Chess(-4,0,2);
-			this.testImpl(start, end);
-			Thread.sleep(1000);
-			start = new Chess(5,-1,2);
-			end = new Chess(4,-2,2);
+			Chess start = new Chess(4,-5,1);
+			Chess end = new Chess(3,-4,1);
 			this.testImpl(start, end);
 			Thread.sleep(1000);
 			start = new Chess(5,-1,2);
 			end = new Chess(4,0,2);
 			this.testImpl(start, end);
 			Thread.sleep(1000);
-			start = new Chess(-7,3,1);
-			end = new Chess(-3,-1,1);
+			start = new Chess(3,-5,1);
+			end = new Chess(4,-5,1);
+			this.testImpl(start, end);
+			Thread.sleep(1000);
+			start = new Chess(-3,6,2);
+			end = new Chess(-1,4,2);
 			this.testImpl(start, end);
 		}
 		

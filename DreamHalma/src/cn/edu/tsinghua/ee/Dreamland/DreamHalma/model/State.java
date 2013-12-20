@@ -36,7 +36,7 @@ public class State implements Serializable {
 		
 		//initiate directions
 		dirt.add(new Chess(1,0,1));
-		dirt.add(new Chess(0,1,1));
+		dirt.add(new Chess(-1,0,1));
 		dirt.add(new Chess(0,1,1));
 		dirt.add(new Chess(0,-1,1));
 		dirt.add(new Chess(1,-1,1));
@@ -71,6 +71,7 @@ public class State implements Serializable {
 			this.initiateChess();
 		}
 		LOG.info("state initiated");
+		//this.testValidSet();
 	}
 	
 	//function to initiate the chesses according to player number
@@ -273,6 +274,7 @@ public class State implements Serializable {
 		if(isSame(start,end)) return false;
 		HashSet<Chess>avail=new HashSet<Chess>();
 		boolean flag=false;//for the principle of movement
+		boolean flag1=compare(chesses,new Chess(-2,6,1));
 		validSet(start,avail,flag,new Chess(-10,-10,1));
 		//test info, delete for later release
 		String strAvailableDest = "";
@@ -303,9 +305,11 @@ public class State implements Serializable {
 				Chess temp1=makeMove(start,temp);
 				if(compare(chesses,makeMove(start,temp))){
 					Chess now=makeMove(makeMove(start,temp),temp);
+					boolean flag2=compare(chesses,now);
+					flag2=check(now);
 					if(!compare(chesses,now)&&check(now)){
-						flag=true;//cannnot make one step move, can only jump
-						validSet(now,avail,flag,start);
+						boolean flag1=true;//cannnot make one step move, can only jump
+						validSet(now,avail,flag1,start);
 						avail.add(now);
 					}
 				}
@@ -329,21 +333,21 @@ public class State implements Serializable {
 		if(now.getVert()>=-4&&now.getVert()<=4&&now.getHoriz()>=-4&&now.getHoriz()<=4)
 			flag=true;
 		else if(now.getVert()>=-4&&now.getVert()<=4&&now.getHoriz()>4){
-			if(now.getHoriz()==5&&now.getVert()>=-4&&now.getHoriz()<=-1)
+			if(now.getHoriz()==5&&now.getVert()>=-4&&now.getVert()<=-1)
 				flag=true;
-			else if(now.getHoriz()==6&&now.getVert()>=-4&&now.getHoriz()<=-2)
+			else if(now.getHoriz()==6&&now.getVert()>=-4&&now.getVert()<=-2)
 				flag=true;
-			else if(now.getHoriz()==7&&now.getVert()>=-4&&now.getHoriz()<=-3)
+			else if(now.getHoriz()==7&&now.getVert()>=-4&&now.getVert()<=-3)
 				flag=true;
 			else if(now.getHoriz()==8&&now.getVert()==-4)
 				flag=true;
 		}
 		else if(now.getVert()>=-4&&now.getVert()<=4&&now.getHoriz()<-4){
-			if(now.getHoriz()==-5&&now.getVert()>=1&&now.getHoriz()<=4)
+			if(now.getHoriz()==-5&&now.getVert()>=1&&now.getVert()<=4)
 				flag=true;
-			else if(now.getHoriz()==-6&&now.getVert()>=2&&now.getHoriz()<=4)
+			else if(now.getHoriz()==-6&&now.getVert()>=2&&now.getVert()<=4)
 				flag=true;
-			else if(now.getHoriz()==-7&&now.getVert()>=3&&now.getHoriz()<=4)
+			else if(now.getHoriz()==-7&&now.getVert()>=3&&now.getVert()<=4)
 				flag=true;
 			else if(now.getHoriz()==-8&&now.getVert()==4)
 				flag=true;
@@ -404,10 +408,14 @@ public class State implements Serializable {
 	}
 	
 	public void testValidSet(){
-		gameOn = true;
+		this.removeChess(new Chess(-1,5,2));
+		this.chesses.add(new Chess(-1,4,2));
 		Chess start=new Chess(4,-6,1);
 		Chess end=new Chess(2,-4,1);
 		boolean flag=false;
+		flag=validMove(start,end);
+		start=new Chess(-3,7,2);
+		end=new Chess(-1,3,2);
 		flag=validMove(start,end);
 		LOG.info(flag);
 	}
