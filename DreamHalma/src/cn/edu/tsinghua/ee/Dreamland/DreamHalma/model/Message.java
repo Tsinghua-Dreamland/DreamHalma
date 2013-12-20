@@ -10,7 +10,7 @@ public class Message implements Serializable{
 	
 	private State state;  // the state of the game
 	private boolean registered = false; // the marker whether the player has registered as a player
-	private boolean isValid = false; //the marker whether a certain move is valid
+	private boolean isValid = true; //the marker whether a certain move is valid
 	
 	public Message(State state){
 		this.state = state;

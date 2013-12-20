@@ -287,14 +287,14 @@ public class State implements Serializable {
 		LOG.info("checking whether the move of player "+
 				start.getOwner()+" is valid: start: ("+start.getHoriz()
 				+","+start.getVert()+"), end: ("+end.getHoriz()+","+end.getVert()+")");
-		boolean judge;//whether the movement is right
-		judge=false;
+		if(isSame(start,end)) return false;
 		HashSet<Chess>avail=new HashSet<Chess>();
 		boolean flag=false;//for the principle of movement
 		validSet(start,avail,flag,new Chess(-10,-10,1));
 		if(compare(avail,end))
-			judge=true;
-		return judge;
+			return true;
+		else 
+			return false;
 	}
 	
 	//move towards the point of Hexagon
@@ -383,17 +383,19 @@ public class State implements Serializable {
 		return flag;
 	}
 	
+	public static boolean isSame(Chess chess1, Chess chess2){
+		if((chess1.getVert()==chess2.getVert())&&(chess1.getHoriz()==chess2.getHoriz()))
+			return true;
+		else return false;
+	}
+	
 	//whether one point is contained in the HashSet chesses
 	public static boolean compare(HashSet<Chess> now,Chess exp){
-		boolean flag=false;
 		for(Chess temp:now){
-			if((temp.getVert()==exp.getVert())&&(temp.getHoriz()==exp.getHoriz()))
-			{
-				flag=true;
-				break;
-			}
+			if(isSame(temp, exp))
+				return true;
 		}
-		return flag;
+		return false;
 	}
 
 	//for test purpose, clean this up for release
