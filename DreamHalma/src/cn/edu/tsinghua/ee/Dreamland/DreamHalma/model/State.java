@@ -245,11 +245,41 @@ public class State implements Serializable {
 	}
 	
 	//check if the game is finished, set gameOn if necessary
-	//TO DO:we have to fill this blank to stop the game
 	private void checkIsGameFinished(){
-		this.gameOn = true;
+		for(Chess chess: chesses){
+			if(inCoreArea(chess)){
+				this.gameOn = true;
+				return;
+			}
+		}
+		this.gameOn = false;
 	}
 	
+	private boolean inCoreArea(Chess now){
+		if(now.getVert()>=-4&&now.getVert()<=0&&now.getHoriz()>=0&&now.getHoriz()<=4)
+			return true;
+		else if(now.getVert()>=0&&now.getVert()<=4&&now.getHoriz()>=-4&&now.getHoriz()<=0)
+			return true;
+		else if(now.getHoriz()>=-4&&now.getHoriz()<0&&now.getVert()<0){
+			if(now.getVert()==-1&&now.getHoriz()>=-3&&now.getHoriz()<=-1)
+				return true;
+			else if(now.getVert()==-2&&now.getHoriz()>=-2&&now.getHoriz()<=-1)
+				return true;
+			else if(now.getVert()==-3&&now.getHoriz()>=-1&&now.getHoriz()<=-1)
+				return true;
+		}
+		else if(now.getHoriz()>0&&now.getHoriz()<=4&&now.getVert()>0){
+			if(now.getVert()==1&&now.getHoriz()>=1&&now.getHoriz()<=3)
+				return true;
+			else if(now.getVert()==2&&now.getHoriz()>=1&&now.getHoriz()<=2)
+				return true;
+			else if(now.getVert()==3&&now.getHoriz()==1)
+				return true;
+		}
+		return false;
+	}
+	
+	//test case for gui
 	private boolean validMoveTest(Chess start, Chess end){
 		LOG.info("checking whether the move of player "+
 				start.getOwner()+" is valid: start: ("+start.getHoriz()
@@ -276,12 +306,6 @@ public class State implements Serializable {
 		boolean flag=false;//for the principle of movement
 		boolean flag1=compare(chesses,new Chess(-2,6,1));
 		validSet(start,avail,flag,new Chess(-10,-10,1));
-		//test info, delete for later release
-		String strAvailableDest = "";
-		for (Chess tempTest:avail){
-			strAvailableDest = strAvailableDest + tempTest.printChess()+"; ";
-		}
-		LOG.info("available sets of destinations : "+strAvailableDest);
 		if(compare(avail,end))
 			return true;
 		else 
@@ -294,7 +318,6 @@ public class State implements Serializable {
 	}
 	
 	//recursion to find the avaliable set of movement
-	//TO DO:if are the else path useful? maybe we should remove them if unnecessary
 	private void validSet(Chess start,HashSet<Chess>avail,boolean flag,Chess from){
 		if(check(from))
 			avail.add(from);//cannot be back to the original point
@@ -316,15 +339,10 @@ public class State implements Serializable {
 				else{
 					if(check(makeMove(start,temp))&&flag==false){//if the point is in the chessboard
 						avail.add(makeMove(start,temp));
-						//validSet(makeMove(start,temp),avail);
 					}
-					else
-						;
 				}
 			}
 		}
-		else 
-			;
 	}
 	
 	//whether the chess is still in the chessboard
