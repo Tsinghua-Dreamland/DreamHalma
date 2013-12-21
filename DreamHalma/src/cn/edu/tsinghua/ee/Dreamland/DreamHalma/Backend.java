@@ -41,7 +41,7 @@ public class Backend implements Runnable{
 	public void run(){
 		//if the backend property is "client"
 		//this means that we only run a Gui locally, no backend required
-		if(configure.getProperty("backend")=="client"){
+		if((configure.getProperty("backend")).equals("client")){
 			LOG.info("Backend Close since not necessarily useful");
 			return;
 		} 
