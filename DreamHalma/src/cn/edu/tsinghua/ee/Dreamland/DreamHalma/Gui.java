@@ -1,6 +1,5 @@
 package cn.edu.tsinghua.ee.Dreamland.DreamHalma;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.Graphics;
@@ -13,13 +12,13 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.io.BufferedInputStream;
 import java.io.ObjectInputStream;
 import java.io.BufferedOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import org.apache.commons.logging.Log;
@@ -53,11 +52,13 @@ public class Gui implements Runnable {
 		
 		public State state;
 		private Configure configure;
-		public Point points;
-		public int whichClick = 0;
-		public int wrongClick = 0;
-		public Chess firstClick;
-		public Message FailMessage;
+		public Point points;             //record select click position
+		public int whichClick = 0;       //is this a select click or a move click
+		public int wrongClick = 0;		 // is the select click is a weong click
+		public Chess firstClick;			
+		public Message FailMessage;		 // is the move is a fail
+		public boolean FrontPage = true;
+		public boolean InstructionPage = false;
 		//public boolean init = true;
 		
 		public MyFrame(String s) throws Exception{
@@ -99,27 +100,6 @@ public class Gui implements Runnable {
 				throw e;
 			}
 		}
-		
-		public void test() throws Exception{
-			LOG.info("Backend test started");
-			LOG.info("inital "+state.getChesses().size()+" chesses: "+state.printChess());
-			Chess start = new Chess(4,-5,1);
-			Chess end = new Chess(3,-4,1);
-			this.testImpl(start, end);
-			Thread.sleep(1000);
-			start = new Chess(5,-1,2);
-			end = new Chess(4,0,2);
-			this.testImpl(start, end);
-			Thread.sleep(1000);
-			start = new Chess(3,-5,1);
-			end = new Chess(4,-5,1);
-			this.testImpl(start, end);
-			Thread.sleep(1000);
-			start = new Chess(-3,6,2);
-			end = new Chess(-1,4,2);
-			this.testImpl(start, end);
-		}
-		
 		public void testImpl(Chess start, Chess end) throws Exception{
 			Message message = this.sendMove(start, end);
 			LOG.info("GUI returned info: isValid = "+message.getIsValid());
@@ -129,63 +109,147 @@ public class Gui implements Runnable {
 		
 		public void paint(Graphics g)
 		{
-			final Image imageBg = Toolkit.getDefaultToolkit()
-					.getImage("images/background.jpg");
-			g.drawImage(imageBg,0,25, this);
-			final Image imageNextPlayer = Toolkit.getDefaultToolkit()
-					.getImage("images/next player.png");
-			g.drawImage(imageNextPlayer,0,10, this);
-			if (state.getNextPlayer() == 1)
-			{
-				final Image img1 = Toolkit.getDefaultToolkit()
-						.getImage("images/marbles/yellow.png");
-				g.drawImage(img1,150,44, this);
+			if (FrontPage == true){
+				final Image imageBg = Toolkit.getDefaultToolkit()
+						.getImage("images/FrontPage.jpg");
+				g.drawImage(imageBg,0,0, this);
 			}
-			else
-			{
-				final Image img1 = Toolkit.getDefaultToolkit()
-						.getImage("images/marbles/purple.png");
-				g.drawImage(img1,150,44, this);
-			}
-			for(Chess chess: state.getChesses()){
-				int x = chess.getHoriz();
-				int y = chess.getVert();
-				int xx = 286 + x*48 + y*24;
-				int yy = 370 + y*43;
-				//System.out.println(x+","+y);
-				//LOG.info("Chess marked");
-				if (chess.getOwner() == 1){
+			else{
+				final Image imageBg = Toolkit.getDefaultToolkit()
+						.getImage("images/background.jpg");
+				g.drawImage(imageBg,0,25, this);
+				final Image imageNextPlayer = Toolkit.getDefaultToolkit()
+						.getImage("images/next player.png");
+				g.drawImage(imageNextPlayer,0,10, this);
+				if (state.getNextPlayer() == 1)
+				{
 					final Image img1 = Toolkit.getDefaultToolkit()
-							.getImage("images/marbles/yellow.png");
-					g.drawImage(img1,xx,yy, this); 	
+							.getImage("images/marbles/p1.png");
+					g.drawImage(img1,150,44, this);
 				}
-				else{
+				if (state.getNextPlayer() == 2)
+				{
 					final Image img1 = Toolkit.getDefaultToolkit()
-							.getImage("images/marbles/purple.png");
-					g.drawImage(img1,xx,yy, this); 
+							.getImage("images/marbles/p2.png");
+					g.drawImage(img1,150,44, this);
 				}
-				if (whichClick == 1){
-					   final Image circle = Toolkit.getDefaultToolkit()
-					           .getImage("images/marbles/blue.png");
-					   g.drawImage(circle,points.x,points.y, this); 
-					   //g.fillOval(p.x-6,p.y-8,25,25);
+				if (state.getNextPlayer() == 3)
+				{
+					final Image img1 = Toolkit.getDefaultToolkit()
+							.getImage("images/marbles/p3.png");
+					g.drawImage(img1,150,44, this);
 				}
-				//if (init == false){
-					if (wrongClick == 1){
-						   final Image cwrong = Toolkit.getDefaultToolkit()
-						           .getImage("images/choosefail.png");
-						   g.drawImage(cwrong,-5,45, this); 
+				if (state.getNextPlayer() == 4)
+				{
+					final Image img1 = Toolkit.getDefaultToolkit()
+							.getImage("images/marbles/p4.png");
+					g.drawImage(img1,150,44, this);
+				}
+				if (state.getNextPlayer() == 5)
+				{
+					final Image img1 = Toolkit.getDefaultToolkit()
+							.getImage("images/marbles/p5.png");
+					g.drawImage(img1,150,44, this);
+				}
+				if (state.getNextPlayer() == 6)
+				{
+					final Image img1 = Toolkit.getDefaultToolkit()
+							.getImage("images/marbles/p6.png");
+					g.drawImage(img1,150,44, this);
+				}
+				if (state.getGameOn() == false)
+				{
+					if (state.getNextPlayer() == 2) {
+						JOptionPane.showMessageDialog(
+							    null,"Player 1 wins!!");
+						System.exit(0);
+					}
+					if (state.getNextPlayer() == 3) {
+						JOptionPane.showMessageDialog(
+							    null,"Player 2 wins!!");
+						System.exit(0);
+					}
+					if (state.getNextPlayer() == 4) {
+						JOptionPane.showMessageDialog(
+							    null,"Player 3 wins!!");
+						System.exit(0);
+					}
+					if (state.getNextPlayer() == 5) {
+						JOptionPane.showMessageDialog(
+							    null,"Player 4 wins!!");
+						System.exit(0);
+					}
+					if (state.getNextPlayer() == 6) {
+						JOptionPane.showMessageDialog(
+							    null,"Player 5 wins!!");
+						System.exit(0);
+					}
+					if (state.getNextPlayer() == 1) {
+						JOptionPane.showMessageDialog(
+							    null,"Player " + state.getTotalPlayers() + " wins!!");
+						System.exit(0);
+					}
+				}
+				for(Chess chess: state.getChesses()){
+					int x = chess.getHoriz();
+					int y = chess.getVert();
+					int xx = 286 + x*48 + y*24;
+					int yy = 370 + y*43;
+					//System.out.println(x+","+y);
+					//LOG.info("Chess marked");
+					if (chess.getOwner() == 1){
+						final Image img1 = Toolkit.getDefaultToolkit()
+								.getImage("images/marbles/p1.png");
+						g.drawImage(img1,xx,yy, this); 	
+					}
+					if (chess.getOwner() == 2){
+						final Image img1 = Toolkit.getDefaultToolkit()
+								.getImage("images/marbles/p2.png");
+						g.drawImage(img1,xx,yy, this); 
+					}
+					if (chess.getOwner() == 3){
+						final Image img1 = Toolkit.getDefaultToolkit()
+								.getImage("images/marbles/p3.png");
+						g.drawImage(img1,xx,yy, this); 	
+					}
+					if (chess.getOwner() == 4){
+						final Image img1 = Toolkit.getDefaultToolkit()
+								.getImage("images/marbles/p4.png");
+						g.drawImage(img1,xx,yy, this); 
+					}
+					if (chess.getOwner() == 5){
+						final Image img1 = Toolkit.getDefaultToolkit()
+								.getImage("images/marbles/p5.png");
+						g.drawImage(img1,xx,yy, this); 	
+					}
+					if (chess.getOwner() == 6){
+						final Image img1 = Toolkit.getDefaultToolkit()
+								.getImage("images/marbles/p6.png");
+						g.drawImage(img1,xx,yy, this); 
+					}
+					if (whichClick == 1){
+						   final Image circle = Toolkit.getDefaultToolkit()
+						           .getImage("images/marbles/cc.png");
+						   g.drawImage(circle,points.x,points.y, this); 
 						   //g.fillOval(p.x-6,p.y-8,25,25);
 					}
-					else{
-						if (FailMessage.getIsValid() == false){
-							final Image pwrong = Toolkit.getDefaultToolkit()
-									.getImage("images/playfail.png");
-							g.drawImage(pwrong,-5,45, this); 
+					//if (init == false){
+						if (wrongClick == 1){
+							   final Image cwrong = Toolkit.getDefaultToolkit()
+							           .getImage("images/choosefail.png");
+							   g.drawImage(cwrong,-5,45, this); 
+							   //g.fillOval(p.x-6,p.y-8,25,25);
 						}
-					}
-				//}	
-			 }
+						else{
+							if (FailMessage.getIsValid() == false){
+								final Image pwrong = Toolkit.getDefaultToolkit()
+										.getImage("images/playfail.png");
+									g.drawImage(pwrong,-5,45, this); 
+							}
+						}
+					//}	
+				}
+			}
 		}
 		
 		//added a double buffer to this Frame, which will eliminate the blinking while updating the frame
@@ -292,20 +356,25 @@ public class Gui implements Runnable {
 			mf.repaint();
 			int x = e.getX()-12;
 			int y = e.getY()-12;
-			//mf.init = false;
-			for (int i = 0; i <= 16; i++){
-				if (i%2 == 0){
-					for (int k = -2; k <= 574; k+=48){
-						if ((k-x)*(k-x)+(43*i+26-y)*(43*i+26-y)<=169){
-							this.dealwithClick(mf, k, i);
+			if (mf.FrontPage == true)
+			{
+				mf.FrontPage = false;
+			}
+			else{
+				for (int i = 0; i <= 16; i++){
+					if (i%2 == 0){
+						for (int k = -2; k <= 574; k+=48){
+							if ((k-x)*(k-x)+(43*i+26-y)*(43*i+26-y)<=169){
+								this.dealwithClick(mf, k, i);
+							}
 						}
 					}
-				}
-				else{
-					for (int k = 22; k <= 552; k+=48){
-						if ((k-x)*(k-x)+(43*i+26-y)*(43*i+26-y)<=169){
-							//here send the coordinates
-							this.dealwithClick(mf, k, i);
+					else{
+						for (int k = 22; k <= 552; k+=48){
+							if ((k-x)*(k-x)+(43*i+26-y)*(43*i+26-y)<=169){
+								//here send the coordinates
+								this.dealwithClick(mf, k, i);
+							}
 						}
 					}
 				}
@@ -343,6 +412,9 @@ public class Gui implements Runnable {
 				} catch (Exception e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
+				}
+				if (secondClick.getHoriz() == mf.firstClick.getHoriz() && secondClick.getVert() == mf.firstClick.getVert()){
+					mf.FailMessage.setIsValid(true);
 				}
 				mf.whichClick = 0;
 				mf.repaint();
